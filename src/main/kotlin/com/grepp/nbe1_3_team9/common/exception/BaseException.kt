@@ -1,4 +1,3 @@
 package com.grepp.nbe1_3_team9.common.exception
 
-class BaseException {
-}
+abstract class BaseException(message: String) : RuntimeException(message)
