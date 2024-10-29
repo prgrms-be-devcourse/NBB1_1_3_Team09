@@ -1,9 +1,6 @@
-package com.grepp.nbe1_2_team09.domain.entity.user
+package com.grepp.nbe1_3_team9.domain.entity.user
 
-import com.grepp.nbe1_2_team09.domain.entity.group.GroupMembership
 import com.grepp.nbe1_3_team9.domain.entity.group.GroupMembership
-import com.grepp.nbe1_3_team9.domain.entity.user.OAuthProvider
-import com.grepp.nbe1_3_team9.domain.entity.user.Role
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
@@ -44,8 +41,8 @@ data class User(
     @UpdateTimestamp
     var lastLoginDate: LocalDateTime? = null,
 
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var groupMemberships: List<GroupMembership> = mutableListOf()
+//    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+//    var groupMemberships: List<GroupMembership> = mutableListOf()
 ) {
     // 비즈니스 메서드
     fun updateProfile(username: String, email: String) {
