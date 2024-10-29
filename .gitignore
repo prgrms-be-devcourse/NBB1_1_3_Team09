@@ -46,6 +46,7 @@ dump.rdb
 
 ### Secret ###
 application.properties
+application.yaml
 
 .DS_Store
 ._.DS_Store
