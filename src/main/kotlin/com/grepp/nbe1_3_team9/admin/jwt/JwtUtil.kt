@@ -3,7 +3,9 @@ package com.grepp.nbe1_3_team9.admin.jwt
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.grepp.nbe1_3_team9.admin.dto.CustomUserInfoDTO
+import com.grepp.nbe1_3_team9.admin.redis.entity.RefreshToken
 import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
+import com.grepp.nbe1_3_team9.common.exception.exceptions.JwtException
 import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
@@ -40,10 +42,10 @@ class JwtUtil(
 
     fun createRefreshToken(user: CustomUserInfoDTO): String {
         val token = createToken(user, refreshTokenExpTime)
-        val refreshToken = RefreshToken(user.email, token)
+        val refreshToken = RefreshToken(user.email.toString(), token)
         try {
             val refreshTokenJson = objectMapper.writeValueAsString(refreshToken)
-            redisTemplate.opsForValue().set(user.email, refreshTokenJson, refreshTokenExpTime, TimeUnit.SECONDS)
+            redisTemplate.opsForValue().set(user.email.toString(), refreshTokenJson, refreshTokenExpTime, TimeUnit.SECONDS)
             log.info("RefreshToken 생성 및 Redis 저장 완료 - userId: {}, email: {}", user.userId, user.email)
         } catch (e: Exception) {
             log.error("RefreshToken 저장 실패 - userId: {}, email: {}", user.userId, user.email, e)
@@ -57,7 +59,7 @@ class JwtUtil(
             put("username", user.username)
             put("email", user.email)
             put("role", user.role)
-            put("joinedDate", user.signUpDate.toInstant(ZoneOffset.UTC).toEpochMilli())
+            put("joinedDate", user.signUpDate!!.toInstant(ZoneOffset.UTC).toEpochMilli())
         }
 
         val now = ZonedDateTime.now()

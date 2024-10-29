@@ -40,22 +40,22 @@ class RedisConfig(
         }
     }
 
-    @Bean("notificationRedisTemplate")
-    fun notificationRedisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, Notification> {
-        val objectMapper: ObjectMapper = JsonMapper.builder()
-            .addModule(JavaTimeModule())
-            .build()
-
-        val serializer = Jackson2JsonRedisSerializer(Notification::class.java).apply {
-            setObjectMapper(objectMapper)
-        }
-
-        return RedisTemplate<String, Notification>().apply {
-            setConnectionFactory(connectionFactory)
-            keySerializer = StringRedisSerializer()
-            valueSerializer = serializer
-            hashKeySerializer = StringRedisSerializer()
-            hashValueSerializer = serializer
-        }
-    }
+//    @Bean("notificationRedisTemplate")
+//    fun notificationRedisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, Notification> {
+//        val objectMapper: ObjectMapper = JsonMapper.builder()
+//            .addModule(JavaTimeModule())
+//            .build()
+//
+//        val serializer = Jackson2JsonRedisSerializer(Notification::class.java).apply {
+//            setObjectMapper(objectMapper)
+//        }
+//
+//        return RedisTemplate<String, Notification>().apply {
+//            setConnectionFactory(connectionFactory)
+//            keySerializer = StringRedisSerializer()
+//            valueSerializer = serializer
+//            hashKeySerializer = StringRedisSerializer()
+//            hashValueSerializer = serializer
+//        }
+//    }
 }

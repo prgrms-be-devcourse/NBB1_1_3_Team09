@@ -1,9 +1,9 @@
 package com.grepp.nbe1_3_team9.admin.service
 
-import com.grepp.nbe1_2_team09.domain.entity.user.User
 import com.grepp.nbe1_3_team9.admin.dto.CustomUserInfoDTO
 import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
 import com.grepp.nbe1_3_team9.common.exception.exceptions.UserException
+import com.grepp.nbe1_3_team9.domain.entity.user.User
 import com.grepp.nbe1_3_team9.domain.repository.user.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.userdetails.UserDetails

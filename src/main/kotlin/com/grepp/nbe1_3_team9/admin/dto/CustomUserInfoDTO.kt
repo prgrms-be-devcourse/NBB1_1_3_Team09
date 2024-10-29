@@ -1,6 +1,5 @@
 package com.grepp.nbe1_3_team9.admin.dto
 
-import com.grepp.nbe1_2_team09.domain.entity.user.User
 import com.grepp.nbe1_3_team9.domain.entity.user.Role
 import java.time.LocalDateTime
 
@@ -11,4 +10,4 @@ data class CustomUserInfoDTO(
     val password: String? = null,
     val role: Role? = null,
     val signUpDate: LocalDateTime? = null
-) : User()
+)

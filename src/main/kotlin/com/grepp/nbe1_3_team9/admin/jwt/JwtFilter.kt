@@ -34,8 +34,8 @@ class JwtFilter(
 
         if (StringUtils.hasText(jwt)) {
             try {
-                if (jwtUtil.validateToken(jwt)) {
-                    val userId = jwtUtil.getUserId(jwt)
+                if (jwtUtil.validateToken(jwt.toString())) {
+                    val userId = jwtUtil.getUserId(jwt.toString())
                     val userDetails = customUserDetailsService.loadUserByUsername(userId.toString())
 
                     if (userDetails != null) {
