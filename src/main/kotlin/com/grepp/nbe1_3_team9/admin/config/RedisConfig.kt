@@ -3,6 +3,7 @@ package com.grepp.nbe1_3_team9.admin.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.grepp.nbe1_3_team9.notification.entity.Notification
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -40,22 +41,23 @@ class RedisConfig(
         }
     }
 
-//    @Bean("notificationRedisTemplate")
-//    fun notificationRedisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, Notification> {
-//        val objectMapper: ObjectMapper = JsonMapper.builder()
-//            .addModule(JavaTimeModule())
-//            .build()
-//
-//        val serializer = Jackson2JsonRedisSerializer(Notification::class.java).apply {
-//            setObjectMapper(objectMapper)
-//        }
-//
-//        return RedisTemplate<String, Notification>().apply {
-//            setConnectionFactory(connectionFactory)
-//            keySerializer = StringRedisSerializer()
-//            valueSerializer = serializer
-//            hashKeySerializer = StringRedisSerializer()
-//            hashValueSerializer = serializer
-//        }
-//    }
+    @Bean("notificationRedisTemplate")
+    fun notificationRedisTemplate(connectionFactory: RedisConnectionFactory): RedisTemplate<String, Notification> {
+        val objectMapper = JsonMapper.builder()
+            .addModule(JavaTimeModule())
+            .build()
+
+        val serializer = Jackson2JsonRedisSerializer(objectMapper, Notification::class.java)
+
+        return RedisTemplate<String, Notification>().apply {
+            setConnectionFactory(connectionFactory)
+
+            keySerializer = StringRedisSerializer()
+            valueSerializer = serializer
+
+            hashKeySerializer = StringRedisSerializer()
+            hashValueSerializer = serializer
+        }
+    }
+
 }
