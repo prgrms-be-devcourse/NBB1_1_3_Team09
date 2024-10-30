@@ -6,7 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 class CustomUserDetails(
-    private val user: CustomUserInfoDTO
+    val user: CustomUserInfoDTO
 ) : UserDetails {
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
