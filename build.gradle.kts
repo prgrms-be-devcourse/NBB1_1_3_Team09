@@ -44,7 +44,7 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
   
 	// Google Cloud Vision API
-//	implementation("com.google.cloud:google-cloud-vision:3.47.0")
+	implementation("com.google.cloud:google-cloud-vision:3.50.0")
 
 	// JSON
 	implementation("org.json:json:20231013")
