@@ -5,7 +5,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class UpdateAccountBookReq(
-    var expenseId: Long? = 0L,
+    var expenseId: Long = 0L,
     var expenseDate: LocalDateTime = LocalDateTime.now(),
     var itemName: String = "",
     var amount: BigDecimal = BigDecimal.ZERO,

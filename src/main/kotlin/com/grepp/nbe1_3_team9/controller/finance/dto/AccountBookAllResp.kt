@@ -5,10 +5,10 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class AccountBookAllResp(
-    val expensesId: Long?,
+    val expensesId: Long,
     val expensesDate: LocalDateTime,
     val itemName: String,
-    val amount: String?,
+    val amount: String,
     val paidByUserId: String
 ) {
     companion object {
@@ -31,11 +31,7 @@ data class AccountBookAllResp(
 
         fun toDTO(expense: Expense): AccountBookAllResp {
             return AccountBookAllResp(
-                expensesId = expense.expenseId,
-                expensesDate = expense.expenseDate,
-                itemName = expense.itemName,
-                amount = expense.amount.toString(),
-                paidByUserId = expense.paidBy
+                expense.expenseId, expense.expenseDate, expense.itemName, expense.amount.toString(), expense.paidBy
             )
         }
     }

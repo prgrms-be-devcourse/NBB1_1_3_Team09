@@ -18,11 +18,12 @@ class Expense(
     var expenseDate: LocalDateTime = LocalDateTime.now(),
 
     @field:Column(nullable = false, length = 50)
-    var paidBy: String = ""
-) {
+    var paidBy: String = "",
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var expenseId: Long? = null
+    var expenseId: Long = 0,
+) {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = false)
