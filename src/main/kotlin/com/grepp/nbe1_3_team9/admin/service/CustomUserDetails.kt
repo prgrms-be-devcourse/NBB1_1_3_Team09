@@ -1,40 +1,25 @@
 package com.grepp.nbe1_3_team9.admin.service
 
-import com.grepp.nbe1_3_team9.admin.dto.CustomUserInfoDTO
+import com.grepp.nbe1_3_team9.domain.entity.user.User
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
-class CustomUserDetails(
-    val user: CustomUserInfoDTO
+class CustomUserDetails (
+    private val user: User
 ) : UserDetails {
 
-    override fun getAuthorities(): Collection<GrantedAuthority> {
-        val roles = listOf(user.role.toString())
-        return roles.map { SimpleGrantedAuthority(it) }
-    }
+    override fun getAuthorities(): Collection<GrantedAuthority> = listOf(SimpleGrantedAuthority(user.role.name))
 
-    override fun isAccountNonExpired(): Boolean {
-        return true // 기본적으로 true로 설정
-    }
+    override fun getUsername(): String = user.email
+    override fun getPassword(): String = user.password
 
-    override fun isAccountNonLocked(): Boolean {
-        return true // 기본적으로 true로 설정
-    }
+    override fun isAccountNonExpired(): Boolean = true
+    override fun isAccountNonLocked(): Boolean = true
+    override fun isCredentialsNonExpired(): Boolean = true
+    override fun isEnabled(): Boolean = true
 
-    override fun isCredentialsNonExpired(): Boolean {
-        return true // 기본적으로 true로 설정
-    }
-
-    override fun isEnabled(): Boolean {
-        return true // 기본적으로 true로 설정
-    }
-
-    override fun getPassword(): String {
-        return user.password ?: ""
-    }
-
-    override fun getUsername(): String {
-        return user.userId.toString()
-    }
+    // 접근 메서드
+    fun getUserId(): Long = user.userId
+    fun getUserEmail(): String = user.email
 }

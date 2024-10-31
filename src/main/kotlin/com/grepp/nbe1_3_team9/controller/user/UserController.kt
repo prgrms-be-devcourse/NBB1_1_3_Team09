@@ -1,6 +1,7 @@
 package com.grepp.nbe1_3_team9.controller.user
 
 import com.grepp.nbe1_3_team9.admin.jwt.CookieUtil
+import com.grepp.nbe1_3_team9.admin.jwt.TokenRes
 import com.grepp.nbe1_3_team9.admin.service.oauth2.KakaoApiService
 import com.grepp.nbe1_3_team9.common.exception.exceptions.UserException
 import com.grepp.nbe1_3_team9.controller.user.dto.ChangePasswordReq
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import java.security.Principal
 
@@ -25,6 +27,7 @@ class UserController(
 
     private val log = LoggerFactory.getLogger(UserController::class.java)
 
+    // 현재 사용자 정보 요청 API
     @GetMapping("/me")
     fun getCurrentUser(request: HttpServletRequest): ResponseEntity<*> {
         val token = CookieUtil.getAccessTokenFromCookies(request)
@@ -36,18 +39,25 @@ class UserController(
         }
     }
 
+    // 회원가입
     @PostMapping("/signup")
     fun signUp(@RequestBody signUpReq: SignUpReq): ResponseEntity<String> {
         userService.register(signUpReq)
         return ResponseEntity.ok("회원가입 성공")
     }
 
+    // 로그인
     @PostMapping("/signin")
-    fun signIn(@RequestBody signInReq: SignInReq, response: HttpServletResponse): ResponseEntity<String> {
+    fun signIn(@RequestBody signInReq: SignInReq, response: HttpServletResponse): ResponseEntity<Map<String, Any>> {
         val token = userService.signIn(signInReq, response)
-        return ResponseEntity.ok("로그인 성공. 토큰: $token")
+        val responseBody = mapOf(
+            "message" to "로그인 성공",
+            "data" to token
+        )
+        return ResponseEntity.ok(responseBody)
     }
 
+    // 카카오 소셜 로그인
     @GetMapping("/signin/kakao")
     fun kakaoLogin(@RequestParam code: String, response: HttpServletResponse): ResponseEntity<String> {
         log.info("카카오 인가 코드: {}", code)
@@ -64,22 +74,25 @@ class UserController(
         }
     }
 
+    // 로그아웃
     @PostMapping("/logout")
     fun logout(request: HttpServletRequest, response: HttpServletResponse): ResponseEntity<String> {
-        val principal = request.userPrincipal
-        return if (principal == null) {
+        val authentication = SecurityContextHolder.getContext().authentication
+        return if (authentication == null || !authentication.isAuthenticated) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자가 로그인되지 않았습니다.")
         } else {
-            userService.logout(principal.name, response)
+            userService.logout(authentication, response)
             ResponseEntity.ok("로그아웃 성공")
         }
     }
 
+    // 회원정보 조회
     @GetMapping("/{userId}")
     fun getUserInfo(@PathVariable userId: Long): ResponseEntity<*> {
         return ResponseEntity.ok(userService.getUser(userId))
     }
 
+    // 회원 정보 수정
     @PutMapping("/{userId}")
     fun updateProfile(
         @PathVariable userId: Long,
@@ -91,6 +104,7 @@ class UserController(
         return ResponseEntity.ok("회원 정보 수정 성공")
     }
 
+    // 비밀번호 변경
     @PutMapping("/{userId}/password")
     fun changePassword(
         @PathVariable userId: Long,
@@ -106,6 +120,7 @@ class UserController(
         }
     }
 
+    // 회원 탈퇴
     @DeleteMapping("/{userId}")
     fun deleteUser(@PathVariable userId: Long, principal: Principal): ResponseEntity<String> {
         val loggedInUserId = principal.name.toLong()

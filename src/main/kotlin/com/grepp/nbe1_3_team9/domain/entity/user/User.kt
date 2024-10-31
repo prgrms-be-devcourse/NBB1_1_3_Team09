@@ -41,8 +41,6 @@ data class User(
     @UpdateTimestamp
     var lastLoginDate: LocalDateTime? = null,
 
-//    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-//    var groupMemberships: List<GroupMembership> = mutableListOf()
 ) {
     // 비즈니스 메서드
     fun updateProfile(username: String, email: String) {
