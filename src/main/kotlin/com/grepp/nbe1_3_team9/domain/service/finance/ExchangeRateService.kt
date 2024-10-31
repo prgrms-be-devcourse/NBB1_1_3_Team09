@@ -34,7 +34,7 @@ class ExchangeRateService(
             )
 
             val result = ExchangeRateResDTO(
-                time = exchangeRateTime,
+                time = exchangeRateTime ?: LocalDateTime.now(),
                 toCountry = exchangeRateReqDTO.toCountry,
                 fromCountry = exchangeRateReqDTO.fromCountry,
                 toAmount = BigDecimal(exchangeRateReqDTO.amount),
@@ -106,8 +106,55 @@ class ExchangeRateService(
         }
     }
 
+    @Transactional
+    fun exchangeRateInsert() {
+        exchangeRateTime = LocalDateTime.now()
+        val size = currencyCode.size
+
+        for (i in 0 until size) {
+            val urlStr =
+                "https://v6.exchangerate-api.com/v6/$exchangeRateApiKey/latest/${currencyCode[i]}" // toCountry
+
+            try {
+                val url = URL(urlStr)
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "GET"
+                conn.setRequestProperty("Accept", "application/json")
+
+                if (conn.responseCode != 200) {
+                    throw RuntimeException("Failed : HTTP error code : " + conn.responseCode)
+                }
+
+                val br = BufferedReader(InputStreamReader(conn.inputStream))
+                val responseBuilder = StringBuilder()
+                var line: String?
+
+                while (br.readLine().also { line = it } != null) {
+                    responseBuilder.append(line)
+                }
+
+                br.close()
+                val response = responseBuilder.toString()
+                conn.disconnect()
+
+                val json = JSONObject(response)
+                val rates = json.getJSONObject("conversion_rates")
+                val map = ObjectMapper().readValue(rates.toString(), MutableMap::class.java) as Map<*, *>
+
+                for (j in currencyCode.indices) {
+                    val rate = map[currencyCode[j]].toString()
+                    var exchangeRate=ExchangeRate(currencyCode[i],currencyCode[j], BigDecimal(rate))
+                    exchangeRateRepository.save(exchangeRate)
+                }
+            } catch (e: Exception) {
+                //log.warn(">>>> {} : {} <<<<", e, ExchangeRateException(ExceptionMessage.EXCHANGE_ERROR))
+                throw ExchangeRateException(ExceptionMessage.EXCHANGE_ERROR)
+            }
+        }
+    }
+
     companion object {
-        private var exchangeRateTime: LocalDateTime = LocalDateTime.now()
+        private var exchangeRateTime:LocalDateTime? = null
     }
 
         private val currencyCode = arrayOf("AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNY", "COP", "CRC", "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "EUR", "FJD", "FKP", "FOK", "GBP", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "JPY", "KES", "KGS", "KHR", "KID", "KMF", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RUB", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLE", "SOS", "SRD", "SSP", "STN", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TVD", "TWD", "TZS", "UAH", "UGX", "USD", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XDR", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL")

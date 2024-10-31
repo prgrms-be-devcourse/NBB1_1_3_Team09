@@ -5,10 +5,10 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class AccountBookOneResp(
-    val expensesId: Long?,
+    val expensesId: Long,
     val expensesDate: LocalDateTime,
     val itemName: String,
-    val amount: String?,
+    val amount: String,
     val paidByUserId: String?,
     var receiptImage: String? = null // 필드는 정의하되, 메서드에서 선택적으로 사용
 ) {
@@ -19,7 +19,7 @@ data class AccountBookOneResp(
             expense.expenseId = accountBookDTO.expensesId
             expense.expenseDate = accountBookDTO.expensesDate
             expense.itemName = accountBookDTO.itemName
-            expense.amount = if (accountBookDTO.amount != null && accountBookDTO.amount.isNotEmpty()) {
+            expense.amount = if (accountBookDTO.amount.isNotEmpty()) {
                 BigDecimal(accountBookDTO.amount)
             } else {
                 BigDecimal.ZERO

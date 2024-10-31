@@ -4,7 +4,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class ExchangeRateResDTO(
-    val time: LocalDateTime = LocalDateTime.now(),
+    val time: LocalDateTime?,
     val toCountry: String = "",
     val fromCountry: String = "",
     val toAmount: BigDecimal? = null,

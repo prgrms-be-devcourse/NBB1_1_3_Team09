@@ -94,16 +94,14 @@ class AccountBookService(
     fun updateAccountBook(updateAccountBookReq: UpdateAccountBookReq, user: String) {
         try {
             updateAccountBookReq.expenseId.let {
-                if (it != null) {
-                    accountBookRepository.findById(it)
-                }
+                accountBookRepository.findById(it)
             }
         } catch (e: Exception) {
             throw AccountBookException(ExceptionMessage.EXPENSE_NOT_FOUND)
         }
 
         val groupId: Long? =
-            updateAccountBookReq.expenseId?.let { accountBookRepository.findById(it).get().group.groupId }
+            updateAccountBookReq.expenseId.let { accountBookRepository.findById(it).get().group.groupId }
         val userId = user.toLong()
         if (groupId != null) {
             checkUserInGroup(groupId, userId)
