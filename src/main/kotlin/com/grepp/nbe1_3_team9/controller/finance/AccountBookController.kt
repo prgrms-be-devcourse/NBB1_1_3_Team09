@@ -14,6 +14,7 @@ class AccountBookController(
     private val accountBookService: AccountBookService,
     private val ocrService: OCRService
 ) {
+    private val userId="2";
 
     // 가계부 지출 기록
     @PostMapping("/{groupId}")
@@ -21,9 +22,9 @@ class AccountBookController(
     fun addAccountBook(
         @PathVariable groupId: Long,
         @RequestBody accountBookReq: AccountBookReq,
-        @AuthenticationPrincipal customUserDetails: CustomUserDetails
+//        @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
-        val userId: String = customUserDetails.username
+//        val userId: String = customUserDetails.username
         accountBookService.addAccountBook(groupId, accountBookReq, userId)
     }
 
@@ -31,9 +32,9 @@ class AccountBookController(
     @GetMapping("/{groupId}")
     fun findAllAccountBooks(
         @PathVariable groupId: Long,
-        @AuthenticationPrincipal customUserDetails: CustomUserDetails
+//        @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ): List<AccountBookAllResp> {
-        val userId: String = customUserDetails.username
+//        val userId: String = customUserDetails.username
         return accountBookService.findAllAccountBooks(groupId, userId)
     }
 
@@ -41,9 +42,9 @@ class AccountBookController(
     @PostMapping
     fun findAccountBook(
         @RequestBody expenseId: Map<String?, String>,
-        @AuthenticationPrincipal customUserDetails: CustomUserDetails
+//        @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ): AccountBookOneResp {
-        val userId: String = customUserDetails.username
+//        val userId: String = customUserDetails.username
         return accountBookService.findAccountBook(expenseId["expenseId"]!!.toLong(), userId)
     }
 
@@ -51,9 +52,9 @@ class AccountBookController(
     @PutMapping
     fun updateAccountBook(
         @RequestBody updateAccountBookReq: UpdateAccountBookReq,
-        @AuthenticationPrincipal customUserDetails: CustomUserDetails
+//        @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
-        val userId: String = customUserDetails.username
+//        val userId: String = customUserDetails.username
         accountBookService.updateAccountBook(updateAccountBookReq, userId)
     }
 
@@ -61,9 +62,9 @@ class AccountBookController(
     @DeleteMapping
     fun deleteAccountBook(
         @RequestBody expenseId: Map<String?, String>,
-        @AuthenticationPrincipal customUserDetails: CustomUserDetails
+//        @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
-        val userId: String = customUserDetails.username
+//        val userId: String = customUserDetails.username
         accountBookService.deleteAccountBook(expenseId["expenseId"]!!.toLong(), userId)
     }
 
