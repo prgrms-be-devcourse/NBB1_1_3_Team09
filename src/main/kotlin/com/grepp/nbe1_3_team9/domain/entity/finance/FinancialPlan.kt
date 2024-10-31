@@ -3,11 +3,10 @@ package com.grepp.nbe1_3_team9.domain.entity.finance
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
 import jakarta.persistence.*
 import java.math.BigDecimal
-import java.time.LocalDateTime
 
 @Entity
-@Table(name = "expense_item_tb")
-class ExpenseItem (
+@Table(name = "financial_plan_tb")
+class FinancialPlan (
     @field:Column(nullable = false, length = 100)
     var itemName:String,
 
