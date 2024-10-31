@@ -1,6 +1,5 @@
-package com.grepp.nbe1_3_team9.admin.config
+package com.grepp.nbe1_3_team9.admin.redis
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.grepp.nbe1_3_team9.notification.entity.Notification
@@ -35,9 +34,9 @@ class RedisConfig(
     @Bean(name = ["jwtRedisTemplate"])
     fun redisTemplate(): RedisTemplate<String, String> {
         return RedisTemplate<String, String>().apply {
-            setConnectionFactory(redisConnectionFactory())
             keySerializer = StringRedisSerializer()
             valueSerializer = GenericJackson2JsonRedisSerializer()
+            connectionFactory = redisConnectionFactory()
         }
     }
 
