@@ -106,6 +106,54 @@ class ExchangeRateService(
         }
     }
 
+    @Transactional
+    fun exchangeRateInsert() {
+        exchangeRateTime = LocalDateTime.now()
+        val size = currencyCode.size
+
+        for (i in 0 until size) {
+            val urlStr =
+                "https://v6.exchangerate-api.com/v6/$exchangeRateApiKey/latest/${currencyCode[i]}" // toCountry
+
+            try {
+                val url = URL(urlStr)
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "GET"
+                conn.setRequestProperty("Accept", "application/json")
+
+                if (conn.responseCode != 200) {
+                    throw RuntimeException("Failed : HTTP error code : " + conn.responseCode)
+                }
+
+                val br = BufferedReader(InputStreamReader(conn.inputStream))
+                val responseBuilder = StringBuilder()
+                var line: String?
+
+                while (br.readLine().also { line = it } != null) {
+                    responseBuilder.append(line)
+                }
+
+                br.close()
+                val response = responseBuilder.toString()
+                conn.disconnect()
+
+                val json = JSONObject(response)
+                val rates = json.getJSONObject("conversion_rates")
+                val map = ObjectMapper().readValue(rates.toString(), MutableMap::class.java) as Map<*, *>
+
+                for (j in currencyCode.indices) {
+                    val rate = map[currencyCode[j]].toString()
+                    var exchangeRate=ExchangeRate(currencyCode[i],currencyCode[j], BigDecimal(rate))
+                    exchangeRateRepository.save(exchangeRate)
+                }
+            } catch (e: Exception) {
+                //log.warn(">>>> {} : {} <<<<", e, ExchangeRateException(ExceptionMessage.EXCHANGE_ERROR))
+                println(e)
+                throw ExchangeRateException(ExceptionMessage.EXCHANGE_ERROR)
+            }
+        }
+    }
+
     companion object {
         private var exchangeRateTime: LocalDateTime = LocalDateTime.now()
     }
