@@ -3,7 +3,6 @@ package com.grepp.nbe1_3_team9.admin.service.oauth2
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.grepp.nbe1_3_team9.admin.dto.CustomUserInfoDTO
 import com.grepp.nbe1_3_team9.admin.jwt.CookieUtil
 import com.grepp.nbe1_3_team9.admin.jwt.JwtUtil
 import com.grepp.nbe1_3_team9.domain.entity.user.OAuthProvider
@@ -13,6 +12,8 @@ import com.grepp.nbe1_3_team9.domain.repository.user.UserRepository
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
@@ -105,20 +106,16 @@ class KakaoApiService(
     }
 
     fun createJwtToken(user: User, response: HttpServletResponse) {
-        val customUserInfoDTO = CustomUserInfoDTO(
-            userId = user.userId,
-            username = user.username,
-            email = user.email,
-            password = user.password,
-            role = user.role,
-            signUpDate = user.signUpDate
+        // Authentication 객체 생성
+        val authentication = UsernamePasswordAuthenticationToken(
+            user.email, user.password, listOf(SimpleGrantedAuthority(user.role.name))
         )
 
-        val accessToken = jwtUtil.createAccessToken(customUserInfoDTO)
-        val refreshToken = jwtUtil.createRefreshToken(customUserInfoDTO)
+        // AccessToken 및 RefreshToken 생성
+        val tokenRes = jwtUtil.generateToken(authentication, response)
 
-        CookieUtil.createAccessTokenCookie(accessToken, response)
-        CookieUtil.createRefreshTokenCookie(refreshToken, response)
+        CookieUtil.createAccessTokenCookie(tokenRes.accessToken, response)
+        CookieUtil.createRefreshTokenCookie(tokenRes.refreshToken, response)
 
         log.info("JWT 토큰을 쿠키에 저장했습니다.")
     }
