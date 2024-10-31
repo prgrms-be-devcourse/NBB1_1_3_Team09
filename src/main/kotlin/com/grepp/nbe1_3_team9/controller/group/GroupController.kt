@@ -21,7 +21,7 @@ class GroupController(private val groupService: GroupService) {
 
     @PostMapping
     fun createGroup(@Valid @RequestBody request: CreateGroupRequest, @AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<GroupDto> {
-        val userId = userDetails.user.userId ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         val groupDto = groupService.createGroup(request, userId)
         return ResponseEntity.status(HttpStatus.CREATED).body(groupDto)
     }
@@ -34,49 +34,49 @@ class GroupController(private val groupService: GroupService) {
 
     @PutMapping("/{groupId}")
     fun updateGroup(@PathVariable groupId: Long, @Valid @RequestBody request: UpdateGroupRequest, @AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<GroupDto> {
-        val userId = userDetails.user.userId ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         val groupDto = groupService.updateGroup(groupId, request, userId)
         return ResponseEntity.ok(groupDto)
     }
 
     @DeleteMapping("/{groupId}")
     fun deleteGroup(@PathVariable groupId: Long, @AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<Void> {
-        val userId = userDetails.user.userId ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         groupService.deleteGroup(groupId, userId)
         return ResponseEntity.noContent().build()
     }
 
     @GetMapping("/user")
     fun getUserGroups(@AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<List<GroupDto>> {
-        val userId = userDetails.user.userId ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         val groups = groupService.getUserGroups(userId)
         return ResponseEntity.ok(groups)
     }
 
     @PostMapping("/{groupId}/members")
     fun addMemberToGroup(@PathVariable groupId: Long, @RequestParam email: String, @AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<Void> {
-        val adminId = userDetails.user.userId ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val adminId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         groupService.inviteMemberToGroup(groupId, email, adminId)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping("/invitations/{invitationId}/accept")
     fun acceptInvitation(@PathVariable invitationId: Long, @AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<Void> {
-        val userId = userDetails.user.userId ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         groupService.acceptInvitation(invitationId, userId)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping("/invitations/{invitationId}/reject")
     fun rejectInvitation(@PathVariable invitationId: Long, @AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<Void> {
-        val userId = userDetails.user.userId ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         groupService.rejectInvitation(invitationId, userId)
         return ResponseEntity.ok().build()
     }
 
     @DeleteMapping("/{groupId}/members/{targetUsername}")
     fun removeMemberFromGroup(@PathVariable groupId: Long, @PathVariable targetUsername: String, @AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<Void> {
-        val userId = userDetails.user.userId ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         groupService.removeMemberFromGroup(groupId, userId, targetUsername)
         return ResponseEntity.ok().build()
     }
@@ -89,7 +89,7 @@ class GroupController(private val groupService: GroupService) {
 
     @PutMapping("/{groupId}/members/{targetUsername}/role")
     fun changeGroupMemberRole(@PathVariable groupId: Long, @PathVariable targetUsername: String, @RequestParam role: GroupRole, @AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<Void> {
-        val userId = userDetails.user.userId ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         groupService.changeGroupMemberRole(groupId, targetUsername, role, userId)
         return ResponseEntity.ok().build()
     }
