@@ -1,8 +1,5 @@
 package com.grepp.nbe1_3_team9.domain.entity.group
 
-import com.grepp.nbe1_3_team9.domain.entity.Expense
-import com.grepp.nbe1_3_team9.domain.entity.Task
-import com.grepp.nbe1_3_team9.domain.entity.event.Event
 import com.grepp.nbe1_3_team9.domain.entity.group.invitaion.GroupInvitation
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp

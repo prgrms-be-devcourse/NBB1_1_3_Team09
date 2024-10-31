@@ -3,7 +3,7 @@ package com.grepp.nbe1_3_team9.domain.service.finance
 import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
 import com.grepp.nbe1_3_team9.common.exception.exceptions.AccountBookException
 import com.grepp.nbe1_3_team9.controller.finance.dto.*
-import com.grepp.nbe1_3_team9.domain.entity.Expense
+import com.grepp.nbe1_3_team9.domain.entity.finance.Expense
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
 import com.grepp.nbe1_3_team9.domain.entity.user.User
 import com.grepp.nbe1_3_team9.domain.repository.finance.AccountBookRepository

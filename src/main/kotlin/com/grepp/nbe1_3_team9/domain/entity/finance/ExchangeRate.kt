@@ -1,4 +1,4 @@
-package com.grepp.nbe1_3_team9.domain.entity
+package com.grepp.nbe1_3_team9.domain.entity.finance
 
 import jakarta.persistence.*
 import java.math.BigDecimal
