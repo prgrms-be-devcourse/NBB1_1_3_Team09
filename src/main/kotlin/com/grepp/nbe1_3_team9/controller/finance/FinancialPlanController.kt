@@ -17,6 +17,7 @@ class FinancialPlanController(
 
     //금전 계획 추가
     @PostMapping("/{groupId}")
+    @ResponseStatus(HttpStatus.CREATED)
     fun addFinancialPlan(
         @PathVariable groupId: String,
         @RequestBody financialPlanDTO: AddFinancialPlanReq,
