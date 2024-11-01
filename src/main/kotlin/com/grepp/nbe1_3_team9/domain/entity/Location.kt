@@ -10,7 +10,7 @@ import java.math.BigDecimal
 data class Location(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val locationId: Long,
+    val locationId: Long = 0L,
 
     @Column(unique = true)
     val placeId: String,
