@@ -1,4 +1,7 @@
 package com.grepp.nbe1_3_team9.domain.entity
 
-class LocationType {
+enum class LocationType {
+    RESTAURANT,
+    TOURIST_ATTRACTION,
+    LODGING
 }
