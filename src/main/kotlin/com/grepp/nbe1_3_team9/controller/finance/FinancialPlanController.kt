@@ -58,4 +58,12 @@ class FinancialPlanController(
         val userId=customUserDetails.getUserId()
         financialPlanService.deleteFinancialPlan(groupId, deleteFinancialPlanReq, userId)
     }
+
+    //설정한 항목들 전체 전송
+    @GetMapping("/{groupId}/items")
+    fun getFinancialPlanItems(
+        @PathVariable groupId: Long,
+    ):List<String>{
+        return financialPlanService.getFinancialPlanItems(groupId)
+    }
 }

@@ -84,6 +84,17 @@ class FinancialPlanService (
         }
     }
 
+
+    @Transactional
+    fun getFinancialPlanItems(groupId: Long) :List<String>{
+        val group=groupRepository.findById(groupId)
+        if(!group.isPresent){
+            throw FinancialPlanException(ExceptionMessage.GROUP_NOT_FOUND)
+        }
+
+        return financialPlanRepository.findFinancialPlanItems(group.get())
+    }
+
     private fun checkUserInGroup(groupId: Long, userId: Long) {
         val group: Group = groupRepository.findById(groupId)
             .orElseThrow {
@@ -104,5 +115,4 @@ class FinancialPlanService (
             throw AccountBookException(ExceptionMessage.MEMBER_ACCESS_ONLY)
         }
     }
-
 }
