@@ -72,18 +72,17 @@ class FinancialPlanService (
         return FinancialPlanDTO.toDTO(result.get())
     }
 
-
+    @Transactional
     fun deleteFinancialPlan(groupIdString: String, deleteFinancialPlanReq: DeleteFinancialPlanReq, userId: Long) {
         val groupId=groupIdString.toLong()
         checkUserInGroup(groupId, userId)
 
         try {
-            financialPlanRepository.deleteById(deleteFinancialPlanReq.financePlanId)
+            financialPlanRepository.deleteById(deleteFinancialPlanReq.financialPlanId)
         }catch (e:Exception){
             throw FinancialPlanException(ExceptionMessage.DB_ERROR)
         }
     }
-
 
     private fun checkUserInGroup(groupId: Long, userId: Long) {
         val group: Group = groupRepository.findById(groupId)
