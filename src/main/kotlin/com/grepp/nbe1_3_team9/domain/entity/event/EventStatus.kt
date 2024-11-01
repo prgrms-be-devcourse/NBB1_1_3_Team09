@@ -1,4 +1,8 @@
 package com.grepp.nbe1_3_team9.domain.entity.event
 
-class EventStatus {
+enum class EventStatus {
+    UPCOMING,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELLED
 }
