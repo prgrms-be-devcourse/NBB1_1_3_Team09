@@ -1,4 +1,6 @@
 package com.grepp.nbe1_3_team9.controller.city.dto
 
-class CityResponse {
-}
+data class CityResponse(
+    val placeId: String,
+    val description: String
+)
