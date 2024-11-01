@@ -1,18 +1,23 @@
 package com.grepp.nbe1_3_team9.admin.redis
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.grepp.nbe1_3_team9.notification.entity.Notification
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.redis.cache.RedisCacheConfiguration
+import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
+import org.springframework.data.redis.serializer.RedisSerializationContext
 import org.springframework.data.redis.serializer.StringRedisSerializer
+import java.time.Duration
 
 @Configuration
 class RedisConfig(
@@ -57,6 +62,24 @@ class RedisConfig(
             hashKeySerializer = StringRedisSerializer()
             hashValueSerializer = serializer
         }
+    }
+
+    @Bean
+    fun cacheManager(redisConnectionFactory: RedisConnectionFactory): RedisCacheManager {
+        val objectMapper = ObjectMapper().apply {
+            registerModule(JavaTimeModule())
+        }
+
+        // GenericJackson2JsonRedisSerializer 사용하여 리스트 직렬화
+        val serializer = GenericJackson2JsonRedisSerializer()
+
+        val cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer))
+            .entryTtl(Duration.ofHours(6))
+
+        return RedisCacheManager.builder(redisConnectionFactory)
+            .cacheDefaults(cacheConfig)
+            .build()
     }
 
 }
