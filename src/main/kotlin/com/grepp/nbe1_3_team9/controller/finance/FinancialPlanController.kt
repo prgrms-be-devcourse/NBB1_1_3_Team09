@@ -36,4 +36,15 @@ class FinancialPlanController(
         val userId=customUserDetails.getUserId()
         return financialPlanService.getFinancialPlan(groupId, userId)
     }
+
+    //금전 계획 수정
+    @PutMapping("/{groupId}")
+    fun updateFinancialPlan(
+        @PathVariable groupId: String,
+        @RequestBody financialPlanDTO: FinancialPlanDTO,
+        @AuthenticationPrincipal customUserDetails: CustomUserDetails
+    ):FinancialPlanDTO {
+        val userId=customUserDetails.getUserId()
+        return financialPlanService.updateFinancialPlan(groupId, financialPlanDTO, userId)
+    }
 }

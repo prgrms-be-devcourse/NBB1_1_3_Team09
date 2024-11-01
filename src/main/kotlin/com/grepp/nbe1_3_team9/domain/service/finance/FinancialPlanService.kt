@@ -12,8 +12,11 @@ import com.grepp.nbe1_3_team9.domain.repository.finance.FinancialPlanRepository
 import com.grepp.nbe1_3_team9.domain.repository.group.GroupRepository
 import com.grepp.nbe1_3_team9.domain.repository.group.membership.GroupMembershipRepository
 import com.grepp.nbe1_3_team9.domain.repository.user.UserRepository
+import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
+import java.util.*
 
 @Service
 class FinancialPlanService (
@@ -21,6 +24,7 @@ class FinancialPlanService (
     private val groupRepository: GroupRepository,
     private val userRepository: UserRepository,
     private val groupMembershipRepository: GroupMembershipRepository,
+    private val em: EntityManager,
 ){
     @Transactional
     fun addFinancialPlan(groupIdString: String, financialPlanDTO: AddFinancialPlanReq, userId: Long) {
@@ -51,6 +55,23 @@ class FinancialPlanService (
         return financialPlanList.map { FinancialPlanDTO.toDTO(it) }.toMutableList()
     }
 
+    @Transactional
+    fun updateFinancialPlan(groupIdString:String, financialPlanDTO: FinancialPlanDTO, userId: Long): FinancialPlanDTO {
+        val groupId=groupIdString.toLong()
+        checkUserInGroup(groupId, userId)
+
+        val financialPlan=em.find(FinancialPlan::class.java, financialPlanDTO.financialPlanId)
+        financialPlan.updateExpenseItem(financialPlanDTO.itemName, BigDecimal(financialPlanDTO.amount))
+
+        val result: Optional<FinancialPlan> =financialPlanRepository.findById(financialPlanDTO.financialPlanId)
+        if (result.get().itemName != financialPlanDTO.itemName ||
+            result.get().amount.compareTo(BigDecimal(financialPlanDTO.amount)) != 0) {
+            throw FinancialPlanException(ExceptionMessage.DB_ERROR)
+        }
+        return FinancialPlanDTO.toDTO(result.get())
+    }
+
+
     private fun checkUserInGroup(groupId: Long, userId: Long) {
         val group: Group = groupRepository.findById(groupId)
             .orElseThrow {
@@ -71,5 +92,6 @@ class FinancialPlanService (
             throw AccountBookException(ExceptionMessage.MEMBER_ACCESS_ONLY)
         }
     }
+
 
 }
