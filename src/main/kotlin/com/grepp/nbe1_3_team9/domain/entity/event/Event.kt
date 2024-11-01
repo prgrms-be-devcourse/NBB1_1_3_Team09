@@ -9,7 +9,7 @@ import java.time.LocalDate
 class Event(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val eventId: Long? = null,
+    val eventId: Long = 0L,  // 기본값으로 초기화하여 nullable 제거
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", nullable = false)
@@ -35,7 +35,7 @@ class Event(
     var endDate: LocalDate,
 
     @OneToMany(mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var eventLocations: MutableList<EventLocation> = mutableListOf()
+    val eventLocations: MutableList<EventLocation> = mutableListOf()
 ) {
 
     // 비즈니스 메서드
@@ -48,5 +48,25 @@ class Event(
 
     fun updateStatus(status: EventStatus) {
         this.status = status
+    }
+
+    companion object {
+        fun create(
+            group: Group,
+            eventName: String,
+            description: String?,
+            city: String,
+            startDate: LocalDate,
+            endDate: LocalDate
+        ): Event {
+            return Event(
+                group = group,
+                eventName = eventName,
+                description = description,
+                city = city,
+                startDate = startDate,
+                endDate = endDate
+            )
+        }
     }
 }

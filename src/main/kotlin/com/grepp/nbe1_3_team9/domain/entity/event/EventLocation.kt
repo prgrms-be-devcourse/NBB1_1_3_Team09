@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 class EventLocation(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val pinId: Long? = null,
+    val pinId: Long = 0L,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
