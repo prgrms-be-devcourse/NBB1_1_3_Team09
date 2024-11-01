@@ -50,7 +50,7 @@ class SecurityConfig(
             .authorizeHttpRequests { authorize ->
                 authorize
                     .requestMatchers(*AUTH_WHITELIST).permitAll()
-                    .anyRequest().permitAll()
+                    .anyRequest().authenticated()
             }
 
         return httpSecurity.build()

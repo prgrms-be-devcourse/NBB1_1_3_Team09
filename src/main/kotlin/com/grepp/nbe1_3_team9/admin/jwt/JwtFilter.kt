@@ -1,11 +1,12 @@
 package com.grepp.nbe1_3_team9.admin.jwt
 
+import com.grepp.nbe1_3_team9.common.exception.exceptions.TokenException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.hibernate.query.sqm.tree.SqmNode.log
 import org.slf4j.LoggerFactory
-import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.StringUtils
 import org.springframework.web.filter.OncePerRequestFilter
@@ -15,34 +16,33 @@ class JwtFilter(
     private val jwtUtil: JwtUtil
 ) : OncePerRequestFilter() {
 
-    companion object {
-        private const val ACCESS_HEADER = "Authorization"
-        private const val BEARER_TYPE = "Bearer"
-    }
-
     private val log = LoggerFactory.getLogger(JwtFilter::class.java)
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         val jwt = resolveToken(request)
 
-        if (StringUtils.hasText(jwt) && jwt != null && jwtUtil.validateToken(jwt)) {
-            val authentication = jwtUtil.getAuthentication(jwt)
-            val context: SecurityContext = SecurityContextHolder.createEmptyContext()
-            context.authentication = authentication
-            SecurityContextHolder.setContext(context)
+        if (!jwt.isNullOrEmpty()) {
+            try {
+                if (jwtUtil.validateToken(jwt)) {
+                    val authentication = jwtUtil.getAuthentication(jwt)
+                    SecurityContextHolder.getContext().authentication = authentication
+                } else {
+                    log.warn("유효하지 않은 JWT 토큰입니다.")
+                }
+            } catch (e: TokenException) {
+                log.warn("JWT 토큰 검증 실패")
+            }
         } else {
-            log.warn("유효하지 않은 JWT 토큰이 요청됨: $jwt")
+            log.warn("JWT 토큰이 제공되지 않았습니다.")
         }
         filterChain.doFilter(request, response)
     }
 
     private fun resolveToken(request: HttpServletRequest): String? {
-        val token = request.getHeader(ACCESS_HEADER)
-        return if (StringUtils.hasText(token) && token.startsWith(BEARER_TYPE)) {
-            token.substring(BEARER_TYPE.length)
-        } else {
-            null
-        }
+        val cookies = request.cookies ?: return null
+        val token = cookies.find { it.name == "AccessToken" }
+
+        return token?.value
     }
 }
