@@ -39,7 +39,6 @@ dependencies {
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-
 	// Swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
   
@@ -71,6 +70,8 @@ dependencies {
 	kapt("jakarta.persistence:jakarta.persistence-api")
 
 	implementation("io.github.christian-draeger:k6-kotlin:0.1.0")
+
+	implementation ("org.apache.httpcomponents.client5:httpclient5:5.2")
 }
 
 kotlin {
