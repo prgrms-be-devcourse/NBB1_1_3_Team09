@@ -1,4 +1,4 @@
-package com.grepp.nbe1_3_team9.controller.finance.dto
+package com.grepp.nbe1_3_team9.controller.finance.dto.exchangeRate
 
 import java.math.BigDecimal
 import java.time.LocalDateTime

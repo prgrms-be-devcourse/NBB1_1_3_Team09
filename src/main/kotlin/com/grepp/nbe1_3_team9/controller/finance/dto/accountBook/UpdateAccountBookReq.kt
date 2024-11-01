@@ -1,39 +1,38 @@
-package com.grepp.nbe1_3_team9.controller.finance.dto
+package com.grepp.nbe1_3_team9.controller.finance.dto.accountBook
 
 import com.grepp.nbe1_3_team9.domain.entity.finance.Expense
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-data class AccountBookReq(
+data class UpdateAccountBookReq(
+    var expenseId: Long = 0L,
     var expenseDate: LocalDateTime = LocalDateTime.now(),
-    val itemName: String = "",
-    val amount: String? = null,
-    val paidByUserId: String? = null,
-    val receiptImage: String? = null,
+    var itemName: String = "",
+    var amount: BigDecimal = BigDecimal.ZERO,
+    var paidByUserId: String? = null,
+    var receiptImage: String? = null,
     var receiptImageByte: ByteArray? = null
 ) {
     companion object {
-        fun toEntity(accountBookReq: AccountBookReq): Expense {
+        fun toEntity(accountBookReq: UpdateAccountBookReq): Expense {
             val expense = Expense()
+            expense.expenseId = accountBookReq.expenseId
             expense.expenseDate = accountBookReq.expenseDate
             expense.itemName = accountBookReq.itemName
-            expense.amount = if (!accountBookReq.amount.isNullOrEmpty()) {
-                BigDecimal(accountBookReq.amount)
-            } else {
-                BigDecimal.ZERO
-            }
+            expense.amount = accountBookReq.amount
             expense.paidBy = accountBookReq.paidByUserId ?: ""
             expense.receiptImage = accountBookReq.receiptImageByte
             return expense
         }
 
-        fun toDTO(expense: Expense): AccountBookReq {
-            return AccountBookReq(
+        fun toDTO(expense: Expense): UpdateAccountBookReq {
+            return UpdateAccountBookReq(
+                expenseId = expense.expenseId,
                 expenseDate = expense.expenseDate,
                 itemName = expense.itemName,
-                amount = expense.amount.toString(),
+                amount = expense.amount,
                 paidByUserId = expense.paidBy,
-                receiptImageByte = expense.receiptImage
+                receiptImageByte = expense.receiptImage ?: ByteArray(0)
             )
         }
     }

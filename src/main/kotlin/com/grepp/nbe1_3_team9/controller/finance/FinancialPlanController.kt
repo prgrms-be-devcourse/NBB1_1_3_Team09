@@ -1,7 +1,7 @@
 package com.grepp.nbe1_3_team9.controller.finance
 
 import com.grepp.nbe1_3_team9.admin.service.CustomUserDetails
-import com.grepp.nbe1_3_team9.controller.finance.dto.AddFinancialPlanReq
+import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.AddFinancialPlanReq
 import com.grepp.nbe1_3_team9.domain.service.finance.FinancialPlanService
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
