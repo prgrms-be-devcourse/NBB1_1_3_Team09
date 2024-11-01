@@ -51,7 +51,7 @@ class FinancialPlanService (
         val groupId=groupIdString.toLong()
         checkUserInGroup(groupId, userId)
 
-        val financialPlanList = financialPlanRepository.findALLByGroupId(groupId)
+        val financialPlanList = financialPlanRepository.findAllByGroup_GroupId(groupId)
 
         return financialPlanList.map { FinancialPlanDTO.toDTO(it) }.toMutableList()
     }
