@@ -4,6 +4,7 @@ import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
 import com.grepp.nbe1_3_team9.common.exception.exceptions.AccountBookException
 import com.grepp.nbe1_3_team9.common.exception.exceptions.FinancialPlanException
 import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.AddFinancialPlanReq
+import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.FinancialPlanDTO
 import com.grepp.nbe1_3_team9.domain.entity.finance.FinancialPlan
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
 import com.grepp.nbe1_3_team9.domain.entity.user.User
@@ -38,6 +39,16 @@ class FinancialPlanService (
         if(result.itemName!=financialPlan.itemName){
             throw FinancialPlanException(ExceptionMessage.DB_ERROR)
         }
+    }
+
+    @Transactional
+    fun getFinancialPlan(groupIdString: String, userId: Long):MutableList<FinancialPlanDTO> {
+        val groupId=groupIdString.toLong()
+        checkUserInGroup(groupId, userId)
+
+        val financialPlanList = financialPlanRepository.findALLByGroupId(groupId)
+
+        return financialPlanList.map { FinancialPlanDTO.toDTO(it) }.toMutableList()
     }
 
     private fun checkUserInGroup(groupId: Long, userId: Long) {
