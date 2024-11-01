@@ -4,6 +4,7 @@ import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
 import com.grepp.nbe1_3_team9.common.exception.exceptions.AccountBookException
 import com.grepp.nbe1_3_team9.common.exception.exceptions.FinancialPlanException
 import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.AddFinancialPlanReq
+import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.DeleteFinancialPlanReq
 import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.FinancialPlanDTO
 import com.grepp.nbe1_3_team9.domain.entity.finance.FinancialPlan
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
@@ -72,6 +73,18 @@ class FinancialPlanService (
     }
 
 
+    fun deleteFinancialPlan(groupIdString: String, deleteFinancialPlanReq: DeleteFinancialPlanReq, userId: Long) {
+        val groupId=groupIdString.toLong()
+        checkUserInGroup(groupId, userId)
+
+        try {
+            financialPlanRepository.deleteById(deleteFinancialPlanReq.financePlanId)
+        }catch (e:Exception){
+            throw FinancialPlanException(ExceptionMessage.DB_ERROR)
+        }
+    }
+
+
     private fun checkUserInGroup(groupId: Long, userId: Long) {
         val group: Group = groupRepository.findById(groupId)
             .orElseThrow {
@@ -92,6 +105,5 @@ class FinancialPlanService (
             throw AccountBookException(ExceptionMessage.MEMBER_ACCESS_ONLY)
         }
     }
-
 
 }

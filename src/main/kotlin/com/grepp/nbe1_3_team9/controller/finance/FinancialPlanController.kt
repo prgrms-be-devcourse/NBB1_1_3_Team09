@@ -2,6 +2,7 @@ package com.grepp.nbe1_3_team9.controller.finance
 
 import com.grepp.nbe1_3_team9.admin.service.CustomUserDetails
 import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.AddFinancialPlanReq
+import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.DeleteFinancialPlanReq
 import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.FinancialPlanDTO
 import com.grepp.nbe1_3_team9.domain.entity.finance.FinancialPlan
 import com.grepp.nbe1_3_team9.domain.service.finance.FinancialPlanService
@@ -46,5 +47,15 @@ class FinancialPlanController(
     ):FinancialPlanDTO {
         val userId=customUserDetails.getUserId()
         return financialPlanService.updateFinancialPlan(groupId, financialPlanDTO, userId)
+    }
+
+    @DeleteMapping("/{groupId}")
+    fun deleteFinancialPlan(
+        @PathVariable groupId: String,
+        @RequestBody deleteFinancialPlanReq: DeleteFinancialPlanReq,
+        @AuthenticationPrincipal customUserDetails: CustomUserDetails
+    ){
+        val userId=customUserDetails.getUserId()
+        financialPlanService.deleteFinancialPlan(groupId, deleteFinancialPlanReq, userId)
     }
 }
