@@ -28,8 +28,7 @@ class FinancialPlanService (
     private val em: EntityManager,
 ){
     @Transactional
-    fun addFinancialPlan(groupIdString: String, financialPlanDTO: AddFinancialPlanReq, userId: Long) {
-        val groupId=groupIdString.toLong();
+    fun addFinancialPlan(groupId: Long, financialPlanDTO: AddFinancialPlanReq, userId: Long) {
         checkUserInGroup(groupId, userId)
 
         val financialPlan:FinancialPlan = AddFinancialPlanReq.toEntity(financialPlanDTO)
@@ -47,8 +46,7 @@ class FinancialPlanService (
     }
 
     @Transactional
-    fun getFinancialPlan(groupIdString: String, userId: Long):MutableList<FinancialPlanDTO> {
-        val groupId=groupIdString.toLong()
+    fun getFinancialPlan(groupId: Long, userId: Long):MutableList<FinancialPlanDTO> {
         checkUserInGroup(groupId, userId)
 
         val financialPlanList = financialPlanRepository.findAllByGroup_GroupId(groupId)
@@ -57,8 +55,7 @@ class FinancialPlanService (
     }
 
     @Transactional
-    fun updateFinancialPlan(groupIdString:String, financialPlanDTO: FinancialPlanDTO, userId: Long): FinancialPlanDTO {
-        val groupId=groupIdString.toLong()
+    fun updateFinancialPlan(groupId:Long, financialPlanDTO: FinancialPlanDTO, userId: Long): FinancialPlanDTO {
         checkUserInGroup(groupId, userId)
 
         val financialPlan=em.find(FinancialPlan::class.java, financialPlanDTO.financialPlanId)
@@ -73,8 +70,7 @@ class FinancialPlanService (
     }
 
     @Transactional
-    fun deleteFinancialPlan(groupIdString: String, deleteFinancialPlanReq: DeleteFinancialPlanReq, userId: Long) {
-        val groupId=groupIdString.toLong()
+    fun deleteFinancialPlan(groupId: Long, deleteFinancialPlanReq: DeleteFinancialPlanReq, userId: Long) {
         checkUserInGroup(groupId, userId)
 
         try {
