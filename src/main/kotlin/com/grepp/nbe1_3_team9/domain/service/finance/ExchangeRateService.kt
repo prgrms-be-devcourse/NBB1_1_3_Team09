@@ -3,9 +3,9 @@ package com.grepp.nbe1_3_team9.domain.service.finance
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
 import com.grepp.nbe1_3_team9.common.exception.exceptions.ExchangeRateException
-import com.grepp.nbe1_3_team9.controller.finance.dto.ExchangeRateReqDTO
-import com.grepp.nbe1_3_team9.controller.finance.dto.ExchangeRateResDTO
-import com.grepp.nbe1_3_team9.domain.entity.ExchangeRate
+import com.grepp.nbe1_3_team9.controller.finance.dto.exchangeRate.ExchangeRateReqDTO
+import com.grepp.nbe1_3_team9.controller.finance.dto.exchangeRate.ExchangeRateResDTO
+import com.grepp.nbe1_3_team9.domain.entity.finance.ExchangeRate
 import com.grepp.nbe1_3_team9.domain.repository.finance.ExchangeRateRepository
 import jakarta.persistence.EntityManager
 import org.json.JSONObject
@@ -143,7 +143,7 @@ class ExchangeRateService(
 
                 for (j in currencyCode.indices) {
                     val rate = map[currencyCode[j]].toString()
-                    var exchangeRate=ExchangeRate(currencyCode[i],currencyCode[j], BigDecimal(rate))
+                    var exchangeRate= ExchangeRate(currencyCode[i],currencyCode[j], BigDecimal(rate))
                     exchangeRateRepository.save(exchangeRate)
                 }
             } catch (e: Exception) {

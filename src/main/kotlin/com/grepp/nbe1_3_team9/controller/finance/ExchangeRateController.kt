@@ -1,7 +1,7 @@
 package com.grepp.nbe1_3_team9.controller.finance
 
-import com.grepp.nbe1_3_team9.controller.finance.dto.ExchangeRateReqDTO
-import com.grepp.nbe1_3_team9.controller.finance.dto.ExchangeRateResDTO
+import com.grepp.nbe1_3_team9.controller.finance.dto.exchangeRate.ExchangeRateReqDTO
+import com.grepp.nbe1_3_team9.controller.finance.dto.exchangeRate.ExchangeRateResDTO
 import com.grepp.nbe1_3_team9.domain.service.finance.ExchangeRateService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

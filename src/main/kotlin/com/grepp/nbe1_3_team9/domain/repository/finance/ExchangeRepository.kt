@@ -1,6 +1,6 @@
 package com.grepp.nbe1_3_team9.domain.repository.finance
 
-import com.grepp.nbe1_3_team9.domain.entity.ExchangeRate
+import com.grepp.nbe1_3_team9.domain.entity.finance.ExchangeRate
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.math.BigDecimal

@@ -7,7 +7,7 @@ import com.grepp.nbe1_3_team9.common.exception.exceptions.AccountBookException
 import com.grepp.nbe1_3_team9.controller.chatBot.dto.ChatGPTReqDTO
 import com.grepp.nbe1_3_team9.controller.chatBot.dto.ChatGPTResDTO
 import com.grepp.nbe1_3_team9.controller.chatBot.dto.Message
-import com.grepp.nbe1_3_team9.controller.finance.dto.ReceiptDTO
+import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.ReceiptDTO
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate

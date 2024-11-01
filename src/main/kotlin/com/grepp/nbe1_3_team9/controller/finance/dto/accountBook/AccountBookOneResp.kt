@@ -1,6 +1,6 @@
-package com.grepp.nbe1_3_team9.controller.finance.dto
+package com.grepp.nbe1_3_team9.controller.finance.dto.accountBook
 
-import com.grepp.nbe1_3_team9.domain.entity.Expense
+import com.grepp.nbe1_3_team9.domain.entity.finance.Expense
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
