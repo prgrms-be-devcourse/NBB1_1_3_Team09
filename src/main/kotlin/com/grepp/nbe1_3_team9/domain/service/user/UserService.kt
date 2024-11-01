@@ -1,11 +1,12 @@
 package com.grepp.nbe1_3_team9.domain.service.user
 
-import com.grepp.nbe1_3_team9.admin.jwt.CookieUtil
 import com.grepp.nbe1_3_team9.admin.jwt.JwtUtil
 import com.grepp.nbe1_3_team9.admin.jwt.TokenRes
+import com.grepp.nbe1_3_team9.admin.service.CustomUserDetails
 import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
 import com.grepp.nbe1_3_team9.common.exception.exceptions.UserException
 import com.grepp.nbe1_3_team9.controller.user.dto.*
+import com.grepp.nbe1_3_team9.domain.entity.user.QUser.user
 import com.grepp.nbe1_3_team9.domain.entity.user.Role
 import com.grepp.nbe1_3_team9.domain.entity.user.User
 import com.grepp.nbe1_3_team9.domain.repository.user.UserRepository
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -37,11 +39,12 @@ class UserService(
     }
 
     // 현재 사용자 정보를 가져오는 메서드
-    fun getCurrentUser(token: String?): User {
-        if (token == null || !jwtUtil.validateToken(token)) {
+    fun getCurrentUser(): User {
+        val authentication = SecurityContextHolder.getContext().authentication
+        if (authentication == null || !jwtUtil.validateToken(authentication.name)) {
             throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
         }
-        val userId = jwtUtil.getAuthentication(token).name.toLong()
+        val userId = authentication.name.toLong()
         return userRepository.findById(userId).orElseThrow {
             UserException(ExceptionMessage.USER_NOT_FOUND)
         }
@@ -76,9 +79,10 @@ class UserService(
         user.updateLastLoginDate()
         userRepository.save(user)
 
-        val authentication = UsernamePasswordAuthenticationToken(user.userId.toString(), null, listOf(SimpleGrantedAuthority(user.role.name)))
-        val tokenRes = jwtUtil.generateToken(authentication, response)
+        val userDetails = CustomUserDetails(user)
+        val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
 
+        val tokenRes = jwtUtil.generateToken(authentication, response)
         return tokenRes
     }
 
@@ -137,17 +141,8 @@ class UserService(
         }
     }
 
-    @Transactional(readOnly = true)
-    fun getCurrentUserDTO(token: String?): UserInfoResp {
-        if (token == null || !jwtUtil.validateToken(token)) {
-            throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
-        }
-
-        val userId = jwtUtil.getAuthentication(token).name.toLong()
-        val user = userRepository.findById(userId).orElseThrow {
-            UserException(ExceptionMessage.USER_NOT_FOUND)
-        }
-
+    fun getCurrentUserInfo(): UserInfoResp {
+        val user = getCurrentUser()
         return UserInfoResp(
             userId = user.userId,
             username = user.username,

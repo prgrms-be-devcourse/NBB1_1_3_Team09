@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import java.security.Principal
@@ -30,9 +31,8 @@ class UserController(
     // 현재 사용자 정보 요청 API
     @GetMapping("/me")
     fun getCurrentUser(request: HttpServletRequest): ResponseEntity<*> {
-        val token = CookieUtil.getAccessTokenFromCookies(request)
         return try {
-            val currentUser = userService.getCurrentUserDTO(token)
+            val currentUser = userService.getCurrentUserInfo()
             ResponseEntity.ok(currentUser)
         } catch (e: UserException) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.message)
@@ -82,6 +82,7 @@ class UserController(
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자가 로그인되지 않았습니다.")
         } else {
             userService.logout(authentication, response)
+            SecurityContextHolder.clearContext()
             ResponseEntity.ok("로그아웃 성공")
         }
     }
@@ -96,10 +97,9 @@ class UserController(
     @PutMapping("/{userId}")
     fun updateProfile(
         @PathVariable userId: Long,
-        @RequestBody updateProfileReq: UpdateProfileReq,
-        principal: Principal
+        @RequestBody updateProfileReq: UpdateProfileReq
     ): ResponseEntity<String> {
-        val loggedInUserId = principal.name.toLong()
+        val loggedInUserId = SecurityContextHolder.getContext().authentication.name.toLong()
         userService.updateProfile(loggedInUserId, userId, updateProfileReq)
         return ResponseEntity.ok("회원 정보 수정 성공")
     }
@@ -114,7 +114,7 @@ class UserController(
         return if (principal == null) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자가 로그인되지 않았습니다.")
         } else {
-            val loggedInUserId = principal.name.toLong()
+            val loggedInUserId = SecurityContextHolder.getContext().authentication.name.toLong()
             userService.changePassword(loggedInUserId, userId, changePasswordReq)
             ResponseEntity.ok("비밀번호 변경 성공")
         }
@@ -123,7 +123,7 @@ class UserController(
     // 회원 탈퇴
     @DeleteMapping("/{userId}")
     fun deleteUser(@PathVariable userId: Long, principal: Principal): ResponseEntity<String> {
-        val loggedInUserId = principal.name.toLong()
+        val loggedInUserId = SecurityContextHolder.getContext().authentication.name.toLong()
         userService.deleteUser(loggedInUserId, userId)
         return ResponseEntity.ok("회원 탈퇴 성공")
     }
