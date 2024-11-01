@@ -5,7 +5,7 @@ import java.math.BigDecimal
 
 class FinancialPlanDTO (
     var financialPlanId: Long,
-    var ItemName:String,
+    var itemName:String,
     var amount: String,
 ){
     companion object{
@@ -13,7 +13,7 @@ class FinancialPlanDTO (
             return FinancialPlanDTO(financialPlan.expenseItemId, financialPlan.itemName, financialPlan.amount.toString())
         }
         fun toEntity(financialPlanDTO: FinancialPlanDTO): FinancialPlan {
-            return FinancialPlan(financialPlanDTO.ItemName, BigDecimal(financialPlanDTO.amount), financialPlanDTO.financialPlanId)
+            return FinancialPlan(financialPlanDTO.itemName, BigDecimal(financialPlanDTO.amount), financialPlanDTO.financialPlanId)
         }
     }
 }
