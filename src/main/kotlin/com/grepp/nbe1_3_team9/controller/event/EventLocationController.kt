@@ -1,11 +1,9 @@
 package com.grepp.nbe1_3_team9.controller.event
 
-import com.grepp.nbe1_3_team9.controller.event.dto.AddEventLocationReq
-import com.grepp.nbe1_3_team9.controller.event.dto.EventLocationDto
-import com.grepp.nbe1_3_team9.controller.event.dto.EventLocationInfoDto
-import com.grepp.nbe1_3_team9.controller.event.dto.UpdateEventLocationReq
+import com.grepp.nbe1_3_team9.controller.event.dto.*
 import com.grepp.nbe1_3_team9.domain.service.event.EventLocationService
 import jakarta.validation.Valid
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -15,7 +13,9 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/events")
 class EventLocationController(
-    private val eventLocationService: EventLocationService
+    private val eventLocationService: EventLocationService,
+    private val eventLocationRedisTemplate: RedisTemplate<String, String>
+
 ) {
 
     @PostMapping("/{eventId}/locations")
@@ -61,5 +61,13 @@ class EventLocationController(
     fun removeLocationFromEvent(@PathVariable pinId: Long): ResponseEntity<Void> {
         eventLocationService.removeLocationFromEvent(pinId)
         return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/api/unlockLocation")
+    fun unlockLocation(@RequestBody request: UnlockLocationRequest): ResponseEntity<Void> {
+        val pinId = request.pinId
+        val lockKey = "lock:eventLocation:$pinId"
+        eventLocationRedisTemplate.delete(lockKey) // 락 해제
+        return ResponseEntity.ok().build()
     }
 }

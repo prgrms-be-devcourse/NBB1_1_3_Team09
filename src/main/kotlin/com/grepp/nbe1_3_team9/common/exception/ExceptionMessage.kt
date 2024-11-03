@@ -48,5 +48,8 @@ enum class ExceptionMessage(val text: String) {
     INVITATION_NOT_FOUND("해당 초대를 찾을 수 없습니다."),
 
     // Location
-    LOCATION_NOT_FOUND("해당 장소를 찾을 수 없습니다.")
+    LOCATION_NOT_FOUND("해당 장소를 찾을 수 없습니다."),
+
+    //EventLocation
+    EVENT_LOCATION_LOCKED("이미 다른 사용자가 수정 중입니다.")
 }

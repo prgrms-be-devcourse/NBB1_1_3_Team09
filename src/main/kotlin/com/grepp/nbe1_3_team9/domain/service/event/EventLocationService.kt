@@ -14,16 +14,20 @@ import com.grepp.nbe1_3_team9.domain.repository.event.eventLocRepo.EventLocation
 import com.grepp.nbe1_3_team9.domain.repository.event.eventrepo.EventRepository
 import com.grepp.nbe1_3_team9.domain.repository.location.LocationRepository
 import org.slf4j.LoggerFactory
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import java.time.Duration
 
 @Service
 @Transactional(readOnly = true)
 class EventLocationService(
     private val eventRepository: EventRepository,
     private val locationRepository: LocationRepository,
-    private val eventLocationRepository: EventLocationRepository
+    private val eventLocationRepository: EventLocationRepository,
+    private val eventLocationRedisTemplate: RedisTemplate<String, String>
+
 ) {
     private val log = LoggerFactory.getLogger(EventLocationService::class.java)
 
@@ -52,7 +56,14 @@ class EventLocationService(
     }
 
     // 장소아이디로 일정 가져오기
+    @Transactional
     fun getEventLocationsById(pinId: Long): EventLocationInfoDto {
+        val lockKey = "lock:eventLocation:$pinId"
+
+        // Redis에서 락을 확인 후 설정
+        if (eventLocationRedisTemplate.opsForValue().setIfAbsent(lockKey, "LOCKED", Duration.ofMinutes(1)) == false) {
+            throw EventException(ExceptionMessage.EVENT_LOCATION_LOCKED)
+        }
         val eventLocation = findEventLocationByIdOrThrowException(pinId)
         return EventLocationInfoDto.from(eventLocation)
     }
@@ -71,6 +82,11 @@ class EventLocationService(
         if (req.visitStartTime != null && req.visitEndTime != null) {
             eventLocation.updateVisitTime(req.visitStartTime, req.visitEndTime)
         }
+
+        // 수정 완료 후 락 해제
+        val lockKey = "lock:eventLocation:$pinId"
+        eventLocationRedisTemplate.delete(lockKey)
+
 
         return EventLocationDto.from(eventLocation)
     }

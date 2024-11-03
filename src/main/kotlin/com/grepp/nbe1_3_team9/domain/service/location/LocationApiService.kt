@@ -40,7 +40,7 @@ class LocationApiService(
     }
 
     // 장소 추천
-    @Cacheable(value = ["recommendedPlaces"], key = "#eventId + '-' + #type")
+    //@Cacheable(value = ["recommendedPlaces"], key = "#eventId + '-' + #type")
     fun getRecommendedPlaces(eventId: Long, type: String?): List<PlaceRecommendResponse> {
         //        val eventDto = eventService.getEventById(eventId)
 //        val cityName = eventDto.city
@@ -65,7 +65,7 @@ class LocationApiService(
     }
 
     // id로 장소 상세 정보 조회
-    @Cacheable(value = ["placeDetails"], key = "#placeId")
+    //@Cacheable(value = ["placeDetails"], key = "#placeId")
     fun getPlaceDetail(placeId: String): PlaceDetailResponse {
         val url = "https://maps.googleapis.com/maps/api/place/details/json?placeid=$placeId&key=$apiKey"
 
