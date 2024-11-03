@@ -10,7 +10,7 @@ import java.math.BigDecimal
 data class Location(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val locationId: Long? = null,
+    val locationId: Long = 0L,
 
     @Column(unique = true)
     val placeId: String,
@@ -27,10 +27,10 @@ data class Location(
     var address: String,
 
     @Column(precision = 3, scale = 2)
-    var rating: BigDecimal,
+    var rating: BigDecimal? = null,
 
     @Column(columnDefinition = "TEXT")
-    val photo: String,
+    val photo: String? = null,
 
     @OneToMany(mappedBy = "location", cascade = [CascadeType.ALL], orphanRemoval = true)
     val eventLocations: List<EventLocation> = mutableListOf(),

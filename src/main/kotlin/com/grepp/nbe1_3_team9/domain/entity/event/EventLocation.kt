@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 class EventLocation(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val pinId: Long? = null,
+    val pinId: Long = 0L,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
@@ -28,8 +28,7 @@ class EventLocation(
     @Column(nullable = false)
     var visitEndTime: LocalDateTime
 ) {
-
-    // 기본 비즈니스 메서드
+    // 비즈니스 메서드
     fun updateDescription(description: String?) {
         this.description = description
     }
@@ -45,5 +44,23 @@ class EventLocation(
     fun updateVisitTime(visitStartTime: LocalDateTime, visitEndTime: LocalDateTime) {
         this.visitStartTime = visitStartTime
         this.visitEndTime = visitEndTime
+    }
+
+    companion object {
+        fun create(
+            event: Event,
+            location: Location,
+            description: String?,
+            visitStartTime: LocalDateTime,
+            visitEndTime: LocalDateTime
+        ): EventLocation {
+            return EventLocation(
+                event = event,
+                location = location,
+                description = description,
+                visitStartTime = visitStartTime,
+                visitEndTime = visitEndTime
+            )
+        }
     }
 }
