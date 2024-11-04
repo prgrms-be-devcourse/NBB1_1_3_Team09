@@ -1,7 +1,5 @@
 package com.grepp.nbe1_3_team9.controller.user
 
-import com.grepp.nbe1_3_team9.admin.jwt.CookieUtil
-import com.grepp.nbe1_3_team9.admin.jwt.TokenRes
 import com.grepp.nbe1_3_team9.admin.service.oauth2.KakaoApiService
 import com.grepp.nbe1_3_team9.common.exception.exceptions.UserException
 import com.grepp.nbe1_3_team9.controller.user.dto.ChangePasswordReq
@@ -14,7 +12,6 @@ import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import java.security.Principal
@@ -64,9 +61,9 @@ class UserController(
         return try {
             val accessToken = kakaoApiService.getAccessToken(code)
             val kakaoUserInfo = kakaoApiService.getUserInfo(accessToken)
-            val user = kakaoApiService.processUser(kakaoUserInfo)
-            kakaoApiService.createJwtToken(user, response)
-            response.sendRedirect("http://localhost:3000/")
+
+            kakaoApiService.processUser(kakaoUserInfo)
+
             ResponseEntity.ok("카카오 로그인 성공, JWT 토큰이 쿠키에 저장되었습니다.")
         } catch (e: Exception) {
             log.error("카카오 로그인 처리 중 오류 발생", e)

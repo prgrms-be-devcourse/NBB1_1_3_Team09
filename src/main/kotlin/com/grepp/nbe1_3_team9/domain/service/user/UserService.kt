@@ -6,7 +6,6 @@ import com.grepp.nbe1_3_team9.admin.service.CustomUserDetails
 import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
 import com.grepp.nbe1_3_team9.common.exception.exceptions.UserException
 import com.grepp.nbe1_3_team9.controller.user.dto.*
-import com.grepp.nbe1_3_team9.domain.entity.user.QUser.user
 import com.grepp.nbe1_3_team9.domain.entity.user.Role
 import com.grepp.nbe1_3_team9.domain.entity.user.User
 import com.grepp.nbe1_3_team9.domain.repository.user.UserRepository
@@ -14,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -41,11 +39,14 @@ class UserService(
     // 현재 사용자 정보를 가져오는 메서드
     fun getCurrentUser(): User {
         val authentication = SecurityContextHolder.getContext().authentication
-        if (authentication == null || !jwtUtil.validateToken(authentication.name)) {
+        if (authentication == null || !authentication.isAuthenticated) {
             throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
         }
-        val userId = authentication.name.toLong()
-        return userRepository.findById(userId).orElseThrow {
+
+        val email = (authentication.principal as? CustomUserDetails)?.getUserEmail()
+            ?: throw UserException(ExceptionMessage.USER_NOT_FOUND)
+
+        return userRepository.findByEmail(email).orElseThrow {
             UserException(ExceptionMessage.USER_NOT_FOUND)
         }
     }
@@ -82,8 +83,7 @@ class UserService(
         val userDetails = CustomUserDetails(user)
         val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
 
-        val tokenRes = jwtUtil.generateToken(authentication, response)
-        return tokenRes
+        return jwtUtil.generateToken(authentication, response)
     }
 
     // 로그아웃
