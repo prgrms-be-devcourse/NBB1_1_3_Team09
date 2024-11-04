@@ -26,7 +26,7 @@ class SecurityConfig(
 
     companion object {
         private val AUTH_WHITELIST = arrayOf(
-            "/swagger-ui/**", "/api-docs", "/ws/**", "/users/signup"
+            "/swagger-ui/**", "/api-docs", "/ws/**", "/users/signup", "/users/signin"
         )
     }
 
@@ -52,7 +52,7 @@ class SecurityConfig(
                     .successHandler(oAuth2LoginSuccessHandler)
                     .failureHandler(oAuth2LoginFailureHandler)
             }
-            .addFilterBefore(JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(JwtFilter(jwtUtil, listOf("/users/signin")), UsernamePasswordAuthenticationFilter::class.java)
             .authorizeHttpRequests { authorize ->
                 authorize
                     .requestMatchers(*AUTH_WHITELIST).permitAll()
