@@ -1,4 +1,4 @@
-package com.grepp.nbe1_3_team9.admin.service.oauth2
+package com.grepp.nbe1_3_team9.admin.service.oauth2.handler
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
