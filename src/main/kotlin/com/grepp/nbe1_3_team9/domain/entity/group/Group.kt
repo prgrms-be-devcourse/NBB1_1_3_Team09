@@ -22,8 +22,8 @@ data class Group(
     @Column(nullable = false, updatable = false)
     val creationDate: LocalDateTime = LocalDateTime.now(),
 
-    @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val memberships: MutableList<GroupMembership> = mutableListOf(),
+//    @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
+//    val memberships: MutableList<GroupMembership> = mutableListOf(),
 
 //    @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
 //    val events: MutableList<Event> = mutableListOf(),
