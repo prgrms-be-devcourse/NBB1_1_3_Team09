@@ -1,6 +1,7 @@
 package com.grepp.nbe1_3_team9.admin.jwt
 
 import com.grepp.nbe1_3_team9.admin.service.CustomUserDetails
+import com.grepp.nbe1_3_team9.admin.service.CustomUserDetailsService
 import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
 import com.grepp.nbe1_3_team9.common.exception.exceptions.TokenException
 import com.grepp.nbe1_3_team9.common.exception.exceptions.UserException
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
 import java.security.Key
 import java.util.*
@@ -23,7 +23,7 @@ class JwtTokenProvider(
     @Value("\${jwt.secret}") secretKey: String,
     @Value("\${jwt.access_expiration_time}") val accessTokenExpTime: Long,
     @Value("\${jwt.refresh_expiration_time}") val refreshTokenExpTime: Long,
-    private val userRepository: UserRepository
+    private val customUserDetailsService: CustomUserDetailsService
 ) {
     private val key: Key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey))
     private val log = LoggerFactory.getLogger(JwtTokenProvider::class.java)
@@ -49,12 +49,9 @@ class JwtTokenProvider(
         val claims = parseClaims(token)
         val authorities = claims["role"]?.toString()?.split(",")?.map { SimpleGrantedAuthority(it) }
 
-        val user = userRepository.findByEmail(claims.subject).orElseThrow {
-            UserException(ExceptionMessage.USER_NOT_FOUND)
-        }
+        val user = customUserDetailsService.loadUserByUsername(claims.subject)
 
-        val principal = CustomUserDetails(user)
-        return UsernamePasswordAuthenticationToken(principal, "", authorities)
+        return UsernamePasswordAuthenticationToken(user, "", authorities)
     }
 
     // JWT Claim 추출
