@@ -1,11 +1,9 @@
 package com.grepp.nbe1_3_team9.controller.event
 
-import com.grepp.nbe1_3_team9.controller.event.dto.AddEventLocationReq
-import com.grepp.nbe1_3_team9.controller.event.dto.EventLocationDto
-import com.grepp.nbe1_3_team9.controller.event.dto.EventLocationInfoDto
-import com.grepp.nbe1_3_team9.controller.event.dto.UpdateEventLocationReq
+import com.grepp.nbe1_3_team9.controller.event.dto.*
 import com.grepp.nbe1_3_team9.domain.service.event.EventLocationService
 import jakarta.validation.Valid
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -16,6 +14,7 @@ import java.time.LocalDate
 @RequestMapping("/events")
 class EventLocationController(
     private val eventLocationService: EventLocationService
+
 ) {
 
     @PostMapping("/{eventId}/locations")
@@ -61,5 +60,11 @@ class EventLocationController(
     fun removeLocationFromEvent(@PathVariable pinId: Long): ResponseEntity<Void> {
         eventLocationService.removeLocationFromEvent(pinId)
         return ResponseEntity.noContent().build()
+    }
+
+    @PostMapping("/api/unlockLocation")
+    fun unlockLocation(@RequestBody request: UnlockLocationRequest): ResponseEntity<Void> {
+        eventLocationService.unlockLocation(request.pinId)
+        return ResponseEntity.ok().build()
     }
 }

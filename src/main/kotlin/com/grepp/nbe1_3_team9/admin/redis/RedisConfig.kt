@@ -7,6 +7,7 @@ import com.grepp.nbe1_3_team9.notification.entity.Notification
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.data.redis.cache.RedisCacheConfiguration
 import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
@@ -37,6 +38,7 @@ class RedisConfig(
     }
 
     @Bean(name = ["jwtRedisTemplate"])
+    @Primary
     fun redisTemplate(): RedisTemplate<String, String> {
         return RedisTemplate<String, String>().apply {
             keySerializer = StringRedisSerializer()
