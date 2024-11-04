@@ -4,9 +4,9 @@ data class NotificationResp(
     val id: String,
     val type: String,
     val message: String,
-    val senderId: Long?,
-    val receiverId: Long?,
-    val invitationId: Long?,
+    val senderId: Long,
+    val receiverId: Long,
+    val invitationId: Long,
     val createdAt: String,
     val read: Boolean
 )
