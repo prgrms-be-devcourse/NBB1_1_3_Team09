@@ -9,4 +9,5 @@ interface GroupMembershipRepositoryCustom {
     fun findByGroupAndUser(group: Group, user: User): Optional<GroupMembership>
     fun findByUserId(userId: Long): List<GroupMembership>
     fun findByGroup(group: Group): List<GroupMembership>
+    fun deleteByGroup(group: Group): Long
 }

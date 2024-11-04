@@ -87,6 +87,8 @@ class GroupService(
             throw GroupException(ExceptionMessage.GROUP_OWNER_ACCESS_ONLY)
         }
 
+        groupMembershipRepository.deleteByGroup(group)
+
         groupRepository.delete(group)
     }
 
@@ -211,9 +213,8 @@ class GroupService(
 
     fun getGroupMembers(groupId: Long): List<GroupMembershipDto> {
         val group = findGroupByIdOrThrowGroupException(groupId)
-
-        return groupMembershipRepository.findByGroup(group)
-            .map { GroupMembershipDto.from(it) }
+        val memberships = groupMembershipRepository.findByGroup(group)
+        return memberships.map { GroupMembershipDto.from(it) }
     }
 
     private fun findUserByEmailOrThrowUserException(email: String): User {
