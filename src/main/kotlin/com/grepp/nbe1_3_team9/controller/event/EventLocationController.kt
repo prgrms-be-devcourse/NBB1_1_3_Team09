@@ -13,8 +13,7 @@ import java.time.LocalDate
 @RestController
 @RequestMapping("/events")
 class EventLocationController(
-    private val eventLocationService: EventLocationService,
-    private val eventLocationRedisTemplate: RedisTemplate<String, String>
+    private val eventLocationService: EventLocationService
 
 ) {
 
@@ -65,9 +64,7 @@ class EventLocationController(
 
     @PostMapping("/api/unlockLocation")
     fun unlockLocation(@RequestBody request: UnlockLocationRequest): ResponseEntity<Void> {
-        val pinId = request.pinId
-        val lockKey = "lock:eventLocation:$pinId"
-        eventLocationRedisTemplate.delete(lockKey) // 락 해제
+        eventLocationService.unlockLocation(request.pinId)
         return ResponseEntity.ok().build()
     }
 }

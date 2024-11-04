@@ -7,9 +7,9 @@ import com.grepp.nbe1_3_team9.controller.event.dto.AddEventLocationReq
 import com.grepp.nbe1_3_team9.controller.event.dto.EventLocationDto
 import com.grepp.nbe1_3_team9.controller.event.dto.EventLocationInfoDto
 import com.grepp.nbe1_3_team9.controller.event.dto.UpdateEventLocationReq
+import com.grepp.nbe1_3_team9.domain.entity.Location
 import com.grepp.nbe1_3_team9.domain.entity.event.Event
 import com.grepp.nbe1_3_team9.domain.entity.event.EventLocation
-import com.grepp.nbe1_3_team9.domain.entity.Location
 import com.grepp.nbe1_3_team9.domain.repository.event.eventLocRepo.EventLocationRepository
 import com.grepp.nbe1_3_team9.domain.repository.event.eventrepo.EventRepository
 import com.grepp.nbe1_3_team9.domain.repository.location.LocationRepository
@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDate
 import java.time.Duration
+import java.time.LocalDate
 
 @Service
 @Transactional(readOnly = true)
@@ -55,6 +55,12 @@ class EventLocationService(
         return eventLocationRepository.findByEvent(event).map { EventLocationInfoDto.from(it) }
     }
 
+    // 일정에 포함되고 선택한 날짜와 같은 장소 불러오기 (시간 빠른 순서)
+    fun getEventLocationByDate(eventId: Long, date: LocalDate): List<EventLocationInfoDto> {
+        val event = findEventByIdOrThrowEventException(eventId)
+        return eventLocationRepository.findByEventAndDate(event, date).map { EventLocationInfoDto.from(it) }
+    }
+
     // 장소아이디로 일정 가져오기
     @Transactional
     fun getEventLocationsById(pinId: Long): EventLocationInfoDto {
@@ -68,12 +74,6 @@ class EventLocationService(
         return EventLocationInfoDto.from(eventLocation)
     }
 
-    // 일정에 포함되고 선택한 날짜와 같은 장소 불러오기 (시간 빠른 순서)
-    fun getEventLocationByDate(eventId: Long, date: LocalDate): List<EventLocationInfoDto> {
-        val event = findEventByIdOrThrowEventException(eventId)
-        return eventLocationRepository.findByEventAndDate(event, date).map { EventLocationInfoDto.from(it) }
-    }
-
     @Transactional
     fun updateEventLocation(pinId: Long, req: UpdateEventLocationReq): EventLocationDto {
         val eventLocation = findEventLocationByIdOrThrowException(pinId)
@@ -82,11 +82,8 @@ class EventLocationService(
         if (req.visitStartTime != null && req.visitEndTime != null) {
             eventLocation.updateVisitTime(req.visitStartTime, req.visitEndTime)
         }
-
         // 수정 완료 후 락 해제
-        val lockKey = "lock:eventLocation:$pinId"
-        eventLocationRedisTemplate.delete(lockKey)
-
+        unlockLocation(pinId)
 
         return EventLocationDto.from(eventLocation)
     }
@@ -97,6 +94,13 @@ class EventLocationService(
         val eventLocation = findEventLocationByIdOrThrowException(pinId)
         eventLocationRepository.delete(eventLocation)
     }
+
+    //락 해제
+    fun unlockLocation(pinId: Long) {
+        val lockKey = "lock:eventLocation:$pinId"
+        eventLocationRedisTemplate.delete(lockKey)
+    }
+
 
     // 예외 처리
     private fun findEventByIdOrThrowEventException(eventId: Long): Event {
