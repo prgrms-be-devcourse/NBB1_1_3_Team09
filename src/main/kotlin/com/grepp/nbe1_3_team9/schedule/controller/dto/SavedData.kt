@@ -8,5 +8,6 @@ data class SavedData(
     val locationId: Long,
     val description: String,
     val visitStart: String,
-    val visitEnd: String
+    val visitEnd: String,
+    val color: String
 ) : Serializable

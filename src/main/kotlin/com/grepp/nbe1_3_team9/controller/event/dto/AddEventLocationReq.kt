@@ -16,7 +16,9 @@ data class AddEventLocationReq(
     val visitStartTime: LocalDateTime,
 
     @field:NotNull(message = "방문 종료 시간 필수")
-    val visitEndTime: LocalDateTime
+    val visitEndTime: LocalDateTime,
+
+    val color : String
 ) {
     @AssertTrue(message = "방문 종료 시간은 시작 시간 이후여야 합니다.")
     fun isValidTimeRange(): Boolean {
