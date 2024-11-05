@@ -66,8 +66,13 @@ class FinancialPlanService (
     }
 
     @Transactional
-    fun updateFinancialPlan(groupId:Long, financialPlanDTO: FinancialPlanDTO, userId: Long): FinancialPlanDTO {
-        checkUserInGroup(groupId, userId)
+    fun updateFinancialPlan(eventId:Long, financialPlanDTO: FinancialPlanDTO, userId: Long): FinancialPlanDTO {
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
+        checkUserInGroup(event.group.groupId, userId)
 
         val financialPlan=em.find(FinancialPlan::class.java, financialPlanDTO.financialPlanId)
         financialPlan.updateExpenseItem(financialPlanDTO.itemName, BigDecimal(financialPlanDTO.amount))

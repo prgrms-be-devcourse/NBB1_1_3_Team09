@@ -38,14 +38,14 @@ class FinancialPlanController(
     }
 
     //금전 계획 수정
-    @PutMapping("/{groupId}")
+    @PutMapping("/{eventId}")
     fun updateFinancialPlan(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @RequestBody financialPlanDTO: FinancialPlanDTO,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ):FinancialPlanDTO {
         val userId=customUserDetails.getUserId()
-        return financialPlanService.updateFinancialPlan(groupId, financialPlanDTO, userId)
+        return financialPlanService.updateFinancialPlan(eventId, financialPlanDTO, userId)
     }
 
     @DeleteMapping("/{groupId}")
