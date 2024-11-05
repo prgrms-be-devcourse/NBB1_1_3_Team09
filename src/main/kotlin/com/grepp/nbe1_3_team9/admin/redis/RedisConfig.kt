@@ -68,13 +68,10 @@ class RedisConfig(
 
     @Bean
     fun cacheManager(redisConnectionFactory: RedisConnectionFactory): RedisCacheManager {
-        val objectMapper = ObjectMapper().apply {
-            registerModule(JavaTimeModule())
-        }
-
         // GenericJackson2JsonRedisSerializer 사용하여 리스트 직렬화
         val serializer = GenericJackson2JsonRedisSerializer()
 
+        // RedisCacheConfiguration 설정
         val cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
             .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer))
             .entryTtl(Duration.ofHours(6))

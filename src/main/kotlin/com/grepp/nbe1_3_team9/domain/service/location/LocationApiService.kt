@@ -18,17 +18,17 @@ import org.springframework.web.client.RestTemplate
 @Service
 class LocationApiService(
     private val restTemplate: RestTemplate,
-    //private val eventService: EventService,
+    private val eventService: EventService,
     @Value("\${google.api.key}")
     private val apiKey: String
 ) {
 
     // 장소 자동 검색
     fun getAutocompletePlaces(eventId: Long, input: String): List<PlaceResponse> {
-//        val eventDto = eventService.getEventById(eventId)
-//        val cityName = eventDto.city
+        val eventDto = eventService.getEventById(eventId)
+        val cityName = eventDto.city
 
-        val location = getCoordinatesFromCityName("Seoul")
+        val location = getCoordinatesFromCityName(cityName)
 
         val url = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&location=$location&radius=5000&types=establishment&key=$apiKey"
 
@@ -40,12 +40,12 @@ class LocationApiService(
     }
 
     // 장소 추천
-    //@Cacheable(value = ["recommendedPlaces"], key = "#eventId + '-' + #type")
+    @Cacheable(value = ["recommendedPlaces"], key = "#eventId + '-' + #type")
     fun getRecommendedPlaces(eventId: Long, type: String?): List<PlaceRecommendResponse> {
-        //        val eventDto = eventService.getEventById(eventId)
-//        val cityName = eventDto.city
+        val eventDto = eventService.getEventById(eventId)
+        val cityName = eventDto.city
 
-        val location = getCoordinatesFromCityName("Seoul")
+        val location = getCoordinatesFromCityName(cityName)
         val placeType = type ?: "establishment"
         val url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=$location&radius=5000&type=$placeType&key=$apiKey"
 
@@ -65,7 +65,7 @@ class LocationApiService(
     }
 
     // id로 장소 상세 정보 조회
-    //@Cacheable(value = ["placeDetails"], key = "#placeId")
+    @Cacheable(value = ["placeDetails"], key = "#placeId")
     fun getPlaceDetail(placeId: String): PlaceDetailResponse {
         val url = "https://maps.googleapis.com/maps/api/place/details/json?placeid=$placeId&key=$apiKey"
 
