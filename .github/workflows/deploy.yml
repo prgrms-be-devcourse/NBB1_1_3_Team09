@@ -1,0 +1,68 @@
+name: Deploy to EC2
+run-name: Running CICD Workflow
+
+on:
+  push:
+    branches:
+      - main
+      
+env:
+  AWS_REGION: ap-northeast-2
+  AWS_S3_BUCKET: voya9e-s3
+  AWS_CODE_DEPLOY_APPLICATION: voya9e-cd
+  AWS_CODE_DEPLOY_GROUP: voya9e-cd-group
+      
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout to main branch
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          
+      - name: Install JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+        
+      - name: Build project
+        run: ./gradlew clean build -x test
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          tags: <docker-hub-username>/my-spring-boot-app:latest
+          push: true
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Upload to S3
+        run: |
+          zip -r release.zip .
+          aws s3 cp release.zip s3://${{ env.AWS_S3_BUCKET }}/cicdtest/$GITHUB_SHA.zip
+          
+      - name: Deploy to EC2 using CodeDeploy
+        run: |
+          aws deploy create-deployment \
+            --application-name ${{ env.AWS_CODE_DEPLOY_APPLICATION }} \
+            --deployment-config-name CodeDeployDefault.AllAtOnce \
+            --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP }} \
+            --s3-location bucket=${{ env.AWS_S3_BUCKET }},key=cicdtest/$GITHUB_SHA.zip,bundleType=zip
