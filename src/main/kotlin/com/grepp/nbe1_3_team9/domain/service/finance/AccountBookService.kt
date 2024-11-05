@@ -85,11 +85,15 @@ class AccountBookService(
             throw AccountBookException(ExceptionMessage.EXPENSE_NOT_FOUND)
         }
 
-        val groupId: Long? = accountBookRepository.findById(expenseId).get().group.groupId
+        val eventId: Long = accountBookRepository.findById(expenseId).get().event.eventId
         val userId = user.toLong()
-        if (groupId != null) {
-            checkUserInGroup(groupId, userId)
+
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
         }
+        checkUserInGroup(event.group.groupId, userId)
 
         val accountBookOneResp: AccountBookOneResp = AccountBookOneResp.toDTO(expense)
 

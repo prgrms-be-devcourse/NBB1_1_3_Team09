@@ -41,7 +41,7 @@ class AccountBookController(
     // 가계부 목록 상세 조회
     @PostMapping
     fun findAccountBook(
-        @RequestBody expenseId: Map<String?, String>,
+        @RequestBody expenseId: Map<String, String>,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ): AccountBookOneResp {
         val userId: String = customUserDetails.username
