@@ -16,7 +16,6 @@ hooks:
     - location: scripts/before_install.sh
       timeout: 300
       runas: ubuntu
-    - run: chmod +x scripts/*.sh
 
   ApplicationStart:
     - location: scripts/start_server.sh
