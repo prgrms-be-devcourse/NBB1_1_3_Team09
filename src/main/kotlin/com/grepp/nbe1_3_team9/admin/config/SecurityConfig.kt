@@ -1,5 +1,6 @@
 package com.grepp.nbe1_3_team9.admin.config
 
+import com.google.rpc.context.AttributeContext.Auth
 import com.grepp.nbe1_3_team9.admin.jwt.JwtFilter
 import com.grepp.nbe1_3_team9.admin.jwt.JwtUtil
 import com.grepp.nbe1_3_team9.admin.service.oauth2.handler.OAuth2LoginFailureHandler
@@ -26,7 +27,7 @@ class SecurityConfig(
 
     companion object {
         private val AUTH_WHITELIST = arrayOf(
-            "/swagger-ui/**", "/api-docs", "/ws/**", "/users/signup", "/users/signin", "/users/signin/kakao"
+            "/swagger-ui/**", "/api-docs", "/ws/**", "/users/signup", "/users/signin", "/users/signin/kakao", "/forecast"
         )
     }
 
@@ -50,7 +51,7 @@ class SecurityConfig(
                     .successHandler(oAuth2LoginSuccessHandler)
                     .failureHandler(oAuth2LoginFailureHandler)
             }
-            .addFilterBefore(JwtFilter(jwtUtil, listOf("/users/signin")), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(JwtFilter(jwtUtil, AUTH_WHITELIST.toList()), UsernamePasswordAuthenticationFilter::class.java)
             .authorizeHttpRequests { authorize ->
                 authorize
                     .requestMatchers(*AUTH_WHITELIST).permitAll()
