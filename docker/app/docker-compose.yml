@@ -1,0 +1,51 @@
+version: '3.8'
+services:
+  app-backend:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    volumes:
+      - ../../src/main/resources/application.yml:/app/config/application.yml
+      - ./logs:/logs
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_CONFIG_LOCATION=file:/app/config/application.yml
+      - SPRING_REDIS_HOST=redis
+    networks:
+      - monitoring
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - monitoring
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    command: ["--redis.addr=redis:6379"]
+    ports:
+      - "9121:9121"
+    networks:
+      - monitoring
+
+  mysql-exporter:
+    image: prom/mysqld-exporter
+    command:
+      - '--config.my-cnf=/my.cnf'
+    volumes:
+      - ./my.cnf:/my.cnf:ro
+    ports:
+      - "9104:9104"
+    networks:
+      - monitoring
+
+volumes:
+  redis_data:
+
+networks:
+  monitoring:
+    external: true
