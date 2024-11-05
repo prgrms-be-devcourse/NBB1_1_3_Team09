@@ -22,7 +22,6 @@ class UserController(
     private val userService: UserService,
     private val kakaoApiService: KakaoApiService
 ) {
-
     private val log = LoggerFactory.getLogger(UserController::class.java)
 
     // 현재 사용자 정보 요청 API
@@ -84,7 +83,7 @@ class UserController(
         }
     }
 
-    // 회원정보 조회
+    // 회원 정보 조회
     @GetMapping("/{userId}")
     fun getUserInfo(@PathVariable userId: Long): ResponseEntity<*> {
         return ResponseEntity.ok(userService.getUser(userId))
@@ -96,8 +95,7 @@ class UserController(
         @PathVariable userId: Long,
         @RequestBody updateProfileReq: UpdateProfileReq
     ): ResponseEntity<String> {
-        val loggedInUserId = SecurityContextHolder.getContext().authentication.name.toLong()
-        userService.updateProfile(loggedInUserId, userId, updateProfileReq)
+        userService.updateProfile(userId, updateProfileReq)
         return ResponseEntity.ok("회원 정보 수정 성공")
     }
 
@@ -105,23 +103,16 @@ class UserController(
     @PutMapping("/{userId}/password")
     fun changePassword(
         @PathVariable userId: Long,
-        @RequestBody changePasswordReq: ChangePasswordReq,
-        principal: Principal?
+        @RequestBody changePasswordReq: ChangePasswordReq
     ): ResponseEntity<String> {
-        return if (principal == null) {
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자가 로그인되지 않았습니다.")
-        } else {
-            val loggedInUserId = SecurityContextHolder.getContext().authentication.name.toLong()
-            userService.changePassword(loggedInUserId, userId, changePasswordReq)
-            ResponseEntity.ok("비밀번호 변경 성공")
-        }
+        userService.changePassword(userId, changePasswordReq)
+        return ResponseEntity.ok("비밀번호 변경 성공")
     }
 
     // 회원 탈퇴
     @DeleteMapping("/{userId}")
-    fun deleteUser(@PathVariable userId: Long, principal: Principal): ResponseEntity<String> {
-        val loggedInUserId = SecurityContextHolder.getContext().authentication.name.toLong()
-        userService.deleteUser(loggedInUserId, userId)
+    fun deleteUser(@PathVariable userId: Long): ResponseEntity<String> {
+        userService.deleteUser(userId)
         return ResponseEntity.ok("회원 탈퇴 성공")
     }
 }

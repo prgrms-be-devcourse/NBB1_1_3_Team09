@@ -29,28 +29,6 @@ class UserService(
 
     private val log = LoggerFactory.getLogger(UserService::class.java)
 
-    // 권한 검증 메서드
-    fun checkAuthorization(loggedInUserId: Long, targetUserId: Long) {
-        if (loggedInUserId != targetUserId) {
-            throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
-        }
-    }
-
-    // 현재 사용자 정보를 가져오는 메서드
-    fun getCurrentUser(): User {
-        val authentication = SecurityContextHolder.getContext().authentication
-        if (authentication == null || !authentication.isAuthenticated) {
-            throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
-        }
-
-        val email = (authentication.principal as? CustomUserDetails)?.getUserEmail()
-            ?: throw UserException(ExceptionMessage.USER_NOT_FOUND)
-
-        return userRepository.findByEmail(email).orElseThrow {
-            UserException(ExceptionMessage.USER_NOT_FOUND)
-        }
-    }
-
     // 회원가입
     @Transactional
     fun register(signUpReq: SignUpReq): User {
@@ -72,7 +50,6 @@ class UserService(
     // 로그인
     fun signIn(signInReq: SignInReq, response: HttpServletResponse): TokenRes {
         val user = findByEmailOrThrowUserException(signInReq.email)
-
         if (!passwordEncoder.matches(signInReq.password, user.password)) {
             throw UserException(ExceptionMessage.USER_LOGIN_FAIL)
         }
@@ -82,7 +59,6 @@ class UserService(
 
         val userDetails = CustomUserDetails(user)
         val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
-
         return jwtUtil.generateToken(authentication, response)
     }
 
@@ -91,37 +67,47 @@ class UserService(
         jwtUtil.deleteTokens(authentication, response)
     }
 
-    // 회원정보 조회
+    // 회원 정보 조회
     fun getUser(userId: Long): User {
         return findByIdOrThrowUserException(userId)
     }
 
-    // 회원정보 수정
+    // 회원 정보 수정
     @Transactional
-    fun updateProfile(loggedInUserId: Long, targetUserId: Long, updateProfileReq: UpdateProfileReq) {
+    fun updateProfile(targetUserId: Long, updateProfileReq: UpdateProfileReq) {
+        val loggedInUserId = getAuthenticatedUserId()
         checkAuthorization(loggedInUserId, targetUserId)
+
         val user = findByIdOrThrowUserException(targetUserId)
         user.updateProfile(updateProfileReq.username, updateProfileReq.email)
+        log.info("사용자 정보가 수정되었습니다. userId: {}", targetUserId)
     }
 
     // 비밀번호 변경
     @Transactional
-    fun changePassword(loggedInUserId: Long, targetUserId: Long, changePasswordReq: ChangePasswordReq) {
+    fun changePassword(targetUserId: Long, changePasswordReq: ChangePasswordReq) {
+        val loggedInUserId = getAuthenticatedUserId()
         checkAuthorization(loggedInUserId, targetUserId)
-        val user = findByIdOrThrowUserException(targetUserId)
 
+        val user = findByIdOrThrowUserException(targetUserId)
         if (!passwordEncoder.matches(changePasswordReq.currentPassword, user.password)) {
             throw IllegalArgumentException("기존 비밀번호가 일치하지 않습니다.")
         }
 
         val encodedPassword = passwordEncoder.encode(changePasswordReq.newPassword)
         user.changePassword(encodedPassword)
+        log.info("사용자 비밀번호가 수정되었습니다. userId: {}", targetUserId)
     }
 
-    // 회원정보 삭제
+    // 회원 정보 삭제
     @Transactional
-    fun deleteUser(loggedInUserId: Long, targetUserId: Long) {
+    fun deleteUser(targetUserId: Long) {
+        val authentication = SecurityContextHolder.getContext().authentication
+        val loggedInUserId = (authentication.principal as? CustomUserDetails)?.getUserId()
+            ?: throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
+
         checkAuthorization(loggedInUserId, targetUserId)
+
         val user = findByIdOrThrowUserException(targetUserId)
         userRepository.delete(user)
         log.info("사용자 정보가 삭제되었습니다. userId: {}", targetUserId)
@@ -137,6 +123,35 @@ class UserService(
     private fun findByEmailOrThrowUserException(email: String): User {
         return userRepository.findByEmail(email).orElseThrow {
             log.warn(">>>> {} : {} <<<<", email, ExceptionMessage.USER_NOT_FOUND)
+            UserException(ExceptionMessage.USER_NOT_FOUND)
+        }
+    }
+
+    // 권한 검증 메서드
+    fun checkAuthorization(loggedInUserId: Long, targetUserId: Long) {
+        if (loggedInUserId != targetUserId) {
+            throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
+        }
+    }
+
+    // 사용자 ID 확인 로직
+    fun getAuthenticatedUserId(): Long {
+        val authentication = SecurityContextHolder.getContext().authentication
+        return (authentication.principal as? CustomUserDetails)?.getUserId()
+            ?: throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
+    }
+
+    // 현재 사용자 정보를 가져오는 메서드
+    fun getCurrentUser(): User {
+        val authentication = SecurityContextHolder.getContext().authentication
+        if (authentication == null || !authentication.isAuthenticated) {
+            throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
+        }
+
+        val email = (authentication.principal as? CustomUserDetails)?.getUserEmail()
+            ?: throw UserException(ExceptionMessage.USER_NOT_FOUND)
+
+        return userRepository.findByEmail(email).orElseThrow {
             UserException(ExceptionMessage.USER_NOT_FOUND)
         }
     }
