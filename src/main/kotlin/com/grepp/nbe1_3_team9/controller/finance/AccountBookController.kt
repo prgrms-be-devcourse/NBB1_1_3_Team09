@@ -61,7 +61,7 @@ class AccountBookController(
     // 가계부 지출 삭제
     @DeleteMapping
     fun deleteAccountBook(
-        @RequestBody expenseId: Map<String?, String>,
+        @RequestBody expenseId: Map<String, String>,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
         val userId: String = customUserDetails.username

@@ -154,20 +154,21 @@ class AccountBookService(
 
     //가계부 지출 삭제
     @Transactional
-    fun deleteAccountBook(expenseId: Long?, user: String) {
+    fun deleteAccountBook(expenseId: Long, user: String) {
         try {
-            if (expenseId != null) {
-                accountBookRepository.findById(expenseId)
-            }
+            accountBookRepository.findById(expenseId)
         } catch (e: Exception) {
             throw AccountBookException(ExceptionMessage.EXPENSE_NOT_FOUND)
         }
 
-        val groupId: Long? = accountBookRepository.findById(expenseId!!).get().group.groupId
-        val userId = user.toLong()
-        if (groupId != null) {
-            checkUserInGroup(groupId, userId)
+        val event:Event = try {
+            accountBookRepository.findById(expenseId).get().event;
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
         }
+
+        val userId = user.toLong()
+        checkUserInGroup(event.group.groupId, userId)
 
         accountBookRepository.deleteById(expenseId)
     }
