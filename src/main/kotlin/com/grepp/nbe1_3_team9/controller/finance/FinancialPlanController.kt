@@ -28,13 +28,13 @@ class FinancialPlanController(
     }
 
     //금전 계획 조회
-    @GetMapping("/{groupId}")
+    @GetMapping("/{eventId}")
     fun getFinancialPlan(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ):List<FinancialPlanDTO> {
         val userId=customUserDetails.getUserId()
-        return financialPlanService.getFinancialPlan(groupId, userId)
+        return financialPlanService.getFinancialPlan(eventId, userId)
     }
 
     //금전 계획 수정

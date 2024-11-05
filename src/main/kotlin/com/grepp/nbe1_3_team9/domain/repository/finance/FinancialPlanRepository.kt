@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface FinancialPlanRepository :JpaRepository<FinancialPlan, Long> {
 
-    fun findAllByGroup_GroupId(groupId: Long): List<FinancialPlan>
+    fun findAllByEvent_EventId(groupId: Long): List<FinancialPlan>
     @Modifying
     @Query("SELECT itemName from FinancialPlan where group =:group")
     fun findFinancialPlanItems(group: Group): List<String>

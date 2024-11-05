@@ -51,10 +51,16 @@ class FinancialPlanService (
     }
 
     @Transactional
-    fun getFinancialPlan(groupId: Long, userId: Long):MutableList<FinancialPlanDTO> {
-        checkUserInGroup(groupId, userId)
+    fun getFinancialPlan(eventId: Long, userId: Long):MutableList<FinancialPlanDTO> {
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
 
-        val financialPlanList = financialPlanRepository.findAllByGroup_GroupId(groupId)
+        checkUserInGroup(event.group.groupId, userId)
+
+        val financialPlanList = financialPlanRepository.findAllByEvent_EventId(eventId)
 
         return financialPlanList.map { FinancialPlanDTO.toDTO(it) }.toMutableList()
     }
