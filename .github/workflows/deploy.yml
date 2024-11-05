@@ -24,17 +24,16 @@ jobs:
         with:
           java-version: '17'
           distribution: 'corretto'
-          
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
 
       - name: Set up application.yaml from GitHub Secrets
         run: |
           mkdir -p ./src/main/resources
+          touch ./src/main/resources/application.yaml
           echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yaml
+          cat ./src/main/resources/application.yaml
 
-      - name: Verify application.yaml content
-        run: cat ./src/main/resources/application.yaml
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
         
       - name: Build project
         run: ./gradlew clean build -x test
@@ -66,12 +65,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo mkdir -p /home/ubuntu/app/config
-            sudo chmod -R 755 /home/ubuntu/app/config
-            sudo aws s3 cp s3://voya9e-s3/config/application.yaml /home/ubuntu/app/config/application.yaml
             docker pull geonoo/my-spring-boot-app:latest
-            docker stop my-spring-boot-app || true
-            docker rm my-spring-boot-app || true
-            docker run -d -p 8080:8080 \
-              -v /home/ubuntu/app/config/application.yaml:/app/config/application.yaml \
-               --name my-spring-boot-app geonoo/my-spring-boot-app:latest
+            docker tag geonoo/my-spring-boot-app:latest my-spring-boot-app
+            docker stop server
+            docker run -d -rm --name my-spring-boot-app -p 8080:8080 my-spring-boot-app
