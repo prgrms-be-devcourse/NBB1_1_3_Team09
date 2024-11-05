@@ -8,9 +8,6 @@ on:
       
 env:
   AWS_REGION: ap-northeast-2
-  AWS_S3_BUCKET: voya9e-s3
-  AWS_CODE_DEPLOY_APPLICATION: voya9e-cd
-  AWS_CODE_DEPLOY_GROUP: voya9e-cd-group
       
 jobs:
   deploy:
@@ -69,7 +66,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/my-spring-boot-app:latest
+            docker pull geonoo/my-spring-boot-app:latest
             docker stop my-spring-boot-app || true
             docker rm my-spring-boot-app || true
-            docker run -d -p 8080:8080 --name my-spring-boot-app ${{ secrets.DOCKER_HUB_USERNAME }}/my-spring-boot-app:latest
+            docker run -d -p 8080:8080 --name my-spring-boot-app geonoo/my-spring-boot-app:latest
