@@ -24,7 +24,7 @@ class AccountBookController(
         @RequestBody accountBookReq: AccountBookReq,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
-        val userId: String = customUserDetails.username
+        val userId = customUserDetails.getUserId()
         accountBookService.addAccountBook(eventId, accountBookReq, userId)
     }
 
@@ -34,7 +34,7 @@ class AccountBookController(
         @PathVariable eventId: Long,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ): List<AccountBookAllResp> {
-        val userId: String = customUserDetails.username
+        val userId = customUserDetails.getUserId()
         return accountBookService.findAllAccountBooks(eventId, userId)
     }
 
@@ -44,7 +44,7 @@ class AccountBookController(
         @RequestBody expenseId: Map<String, String>,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ): AccountBookOneResp {
-        val userId: String = customUserDetails.username
+        val userId = customUserDetails.getUserId()
         return accountBookService.findAccountBook(expenseId["expenseId"]!!.toLong(), userId)
     }
 
@@ -54,7 +54,7 @@ class AccountBookController(
         @RequestBody updateAccountBookReq: UpdateAccountBookReq,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
-        val userId: String = customUserDetails.username
+        val userId = customUserDetails.getUserId()
         accountBookService.updateAccountBook(updateAccountBookReq, userId)
     }
 
@@ -64,7 +64,7 @@ class AccountBookController(
         @RequestBody expenseId: Map<String, String>,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
-        val userId: String = customUserDetails.username
+        val userId = customUserDetails.getUserId()
         accountBookService.deleteAccountBook(expenseId["expenseId"]!!.toLong(), userId)
     }
 

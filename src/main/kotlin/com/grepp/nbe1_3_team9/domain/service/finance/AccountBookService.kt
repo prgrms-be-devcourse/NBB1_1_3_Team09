@@ -9,6 +9,7 @@ import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.UpdateAccountBo
 import com.grepp.nbe1_3_team9.domain.entity.event.Event
 import com.grepp.nbe1_3_team9.domain.entity.finance.Expense
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
+import com.grepp.nbe1_3_team9.domain.entity.user.QUser.user
 import com.grepp.nbe1_3_team9.domain.entity.user.User
 import com.grepp.nbe1_3_team9.domain.repository.event.eventrepo.EventRepository
 import com.grepp.nbe1_3_team9.domain.repository.finance.AccountBookRepository
@@ -30,7 +31,7 @@ class AccountBookService(
     private val eventRepository: EventRepository,
 ) {
     //가계부 지출 기록
-    fun addAccountBook(eventId: Long, accountBookReq: AccountBookReq, user: String) {
+    fun addAccountBook(eventId: Long, accountBookReq: AccountBookReq, userId: Long) {
         if (accountBookReq.receiptImage != null) {
             val fileData: ByteArray = Base64.getDecoder().decode(accountBookReq.receiptImage)
             accountBookReq.receiptImageByte=fileData
@@ -44,7 +45,6 @@ class AccountBookService(
 
         val expense: Expense = AccountBookReq.toEntity(accountBookReq)
 
-        val userId = user.toLong()
         checkUserInGroup(event.group.groupId, userId)
 
         expense.event=event
@@ -56,9 +56,7 @@ class AccountBookService(
     }
 
     //가계부 목록 전체 조회
-    fun findAllAccountBooks(eventId: Long, user: String): MutableList<AccountBookAllResp> {
-        val userId = user.toLong()
-
+    fun findAllAccountBooks(eventId: Long, userId: Long): MutableList<AccountBookAllResp> {
         val event:Event = try {
             eventRepository.findByEventId(eventId);
         }catch (e:Exception){
@@ -74,7 +72,7 @@ class AccountBookService(
 
     //가계부 목록 상세 조회
     @Transactional
-    fun findAccountBook(expenseId: Long, user: String): AccountBookOneResp {
+    fun findAccountBook(expenseId: Long, userId: Long): AccountBookOneResp {
         val expense: Expense? = accountBookRepository.findById(expenseId)
             .orElseThrow {
 //                log.warn(">>>> {} : {} <<<<", expenseId, ExceptionMessage.EXPENSE_NOT_FOUND)
@@ -86,7 +84,6 @@ class AccountBookService(
         }
 
         val eventId: Long = accountBookRepository.findById(expenseId).get().event.eventId
-        val userId = user.toLong()
 
         val event:Event = try {
             eventRepository.findByEventId(eventId);
@@ -109,7 +106,7 @@ class AccountBookService(
 
     //가계부 지출 수정
     @Transactional
-    fun updateAccountBook(updateAccountBookReq: UpdateAccountBookReq, user: String) {
+    fun updateAccountBook(updateAccountBookReq: UpdateAccountBookReq, userId: Long) {
         try {
             updateAccountBookReq.expenseId.let {
                 accountBookRepository.findById(it)
@@ -123,7 +120,6 @@ class AccountBookService(
         }catch (e:Exception){
             throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
         }
-        val userId = user.toLong()
         checkUserInGroup(event.group.groupId, userId)
 
 //        val expense: Expense = em.find<T>(Expense::class.java, updateAccountBookReq.getExpenseId())
@@ -154,7 +150,7 @@ class AccountBookService(
 
     //가계부 지출 삭제
     @Transactional
-    fun deleteAccountBook(expenseId: Long, user: String) {
+    fun deleteAccountBook(expenseId: Long, userId: Long) {
         try {
             accountBookRepository.findById(expenseId)
         } catch (e: Exception) {
@@ -167,7 +163,6 @@ class AccountBookService(
             throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
         }
 
-        val userId = user.toLong()
         checkUserInGroup(event.group.groupId, userId)
 
         accountBookRepository.deleteById(expenseId)
