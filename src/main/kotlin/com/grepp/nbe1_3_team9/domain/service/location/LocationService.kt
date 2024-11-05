@@ -27,8 +27,15 @@ class LocationService(
         if (existingLocation.isPresent) {
             return LocationDto.fromEntity(existingLocation.get())
         }
-        // 중복이 없을 때만 저장
+        //db에 있는지 확인
+        val locationFromDb = locationRepository.findByPlaceId(locationReq.placeId)
+
+        if (locationFromDb.isPresent) {
+            return LocationDto.fromEntity(locationFromDb.get())
+        }
         val savedLocation = locationRepository.save(locationReq.toEntity())
+        // 저장 후 캐시에 추가
+        locationCacheService.saveLocationToCache(savedLocation)
         return LocationDto.fromEntity(savedLocation)
     }
 
