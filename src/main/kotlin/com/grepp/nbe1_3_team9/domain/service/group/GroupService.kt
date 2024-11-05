@@ -107,7 +107,7 @@ class GroupService(
             throw GroupException(ExceptionMessage.USER_ALREADY_IN_GROUP)
         }
 
-        val invitation = GroupInvitation.create(group, invitee, inviter)
+        val invitation = GroupInvitation.create(group, inviter, invitee)
         val savedInvitation = groupInvitationRepository.save(invitation)
 
         val responseResp = NotificationResp(
@@ -141,8 +141,8 @@ class GroupService(
             UUID.randomUUID().toString(),
             "ACCEPT",
             "${invitation.invitee.username}님이 그룹에 참여했습니다.",
-            invitation.invitee.userId,
             invitation.inviter.userId,
+            invitation.invitee.userId,
             invitationId,
             LocalDateTime.now().toString(),
             false
@@ -165,8 +165,8 @@ class GroupService(
             UUID.randomUUID().toString(),
             "REJECT",
             "${invitation.invitee.username}님이 그룹 초대를 거절했습니다.",
-            invitation.invitee.userId,
             invitation.inviter.userId,
+            invitation.invitee.userId,
             invitationId,
             LocalDateTime.now().toString(),
             false
