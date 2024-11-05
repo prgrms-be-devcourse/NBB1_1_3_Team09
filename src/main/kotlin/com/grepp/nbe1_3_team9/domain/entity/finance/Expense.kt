@@ -1,5 +1,6 @@
 package com.grepp.nbe1_3_team9.domain.entity.finance
 
+import com.grepp.nbe1_3_team9.domain.entity.event.Event
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
 import jakarta.persistence.*
 import java.math.BigDecimal
@@ -26,8 +27,8 @@ class Expense(
 ) {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id", nullable = false)
-    lateinit var group: Group  // 나중에 초기화할 수 있도록 설정
+    @JoinColumn(name = "event_id", nullable = false)
+    lateinit var event: Event
 
     @Lob
     @Column
