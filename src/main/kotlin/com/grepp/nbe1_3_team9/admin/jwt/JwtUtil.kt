@@ -2,7 +2,9 @@ package com.grepp.nbe1_3_team9.admin.jwt
 
 import com.grepp.nbe1_3_team9.admin.redis.RefreshTokenService
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Component
 
 @Component
@@ -39,6 +41,11 @@ class JwtUtil(
         refreshTokenService.deleteRefreshToken(authentication.name)
         CookieUtil.deleteAccessTokenCookie(response)
         CookieUtil.deleteRefreshTokenCookie(response)
+    }
+
+    fun createAuthentication(email: String): Authentication {
+        val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"))
+        return UsernamePasswordAuthenticationToken(email, null, authorities)
     }
 
     // 래핑 메서드 추가

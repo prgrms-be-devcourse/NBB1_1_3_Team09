@@ -1,7 +1,5 @@
 package com.grepp.nbe1_3_team9.controller.user
 
-import com.grepp.nbe1_3_team9.admin.jwt.CookieUtil
-import com.grepp.nbe1_3_team9.admin.jwt.TokenRes
 import com.grepp.nbe1_3_team9.admin.service.oauth2.KakaoApiService
 import com.grepp.nbe1_3_team9.common.exception.exceptions.UserException
 import com.grepp.nbe1_3_team9.controller.user.dto.ChangePasswordReq
@@ -24,15 +22,13 @@ class UserController(
     private val userService: UserService,
     private val kakaoApiService: KakaoApiService
 ) {
-
     private val log = LoggerFactory.getLogger(UserController::class.java)
 
     // 현재 사용자 정보 요청 API
     @GetMapping("/me")
     fun getCurrentUser(request: HttpServletRequest): ResponseEntity<*> {
-        val token = CookieUtil.getAccessTokenFromCookies(request)
         return try {
-            val currentUser = userService.getCurrentUserDTO(token)
+            val currentUser = userService.getCurrentUserInfo()
             ResponseEntity.ok(currentUser)
         } catch (e: UserException) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.message)
@@ -64,9 +60,9 @@ class UserController(
         return try {
             val accessToken = kakaoApiService.getAccessToken(code)
             val kakaoUserInfo = kakaoApiService.getUserInfo(accessToken)
-            val user = kakaoApiService.processUser(kakaoUserInfo)
-            kakaoApiService.createJwtToken(user, response)
-            response.sendRedirect("http://localhost:3000/")
+
+            kakaoApiService.processUser(kakaoUserInfo, response)
+
             ResponseEntity.ok("카카오 로그인 성공, JWT 토큰이 쿠키에 저장되었습니다.")
         } catch (e: Exception) {
             log.error("카카오 로그인 처리 중 오류 발생", e)
@@ -82,11 +78,12 @@ class UserController(
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자가 로그인되지 않았습니다.")
         } else {
             userService.logout(authentication, response)
+            SecurityContextHolder.clearContext()
             ResponseEntity.ok("로그아웃 성공")
         }
     }
 
-    // 회원정보 조회
+    // 회원 정보 조회
     @GetMapping("/{userId}")
     fun getUserInfo(@PathVariable userId: Long): ResponseEntity<*> {
         return ResponseEntity.ok(userService.getUser(userId))
@@ -96,11 +93,9 @@ class UserController(
     @PutMapping("/{userId}")
     fun updateProfile(
         @PathVariable userId: Long,
-        @RequestBody updateProfileReq: UpdateProfileReq,
-        principal: Principal
+        @RequestBody updateProfileReq: UpdateProfileReq
     ): ResponseEntity<String> {
-        val loggedInUserId = principal.name.toLong()
-        userService.updateProfile(loggedInUserId, userId, updateProfileReq)
+        userService.updateProfile(userId, updateProfileReq)
         return ResponseEntity.ok("회원 정보 수정 성공")
     }
 
@@ -108,23 +103,16 @@ class UserController(
     @PutMapping("/{userId}/password")
     fun changePassword(
         @PathVariable userId: Long,
-        @RequestBody changePasswordReq: ChangePasswordReq,
-        principal: Principal?
+        @RequestBody changePasswordReq: ChangePasswordReq
     ): ResponseEntity<String> {
-        return if (principal == null) {
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자가 로그인되지 않았습니다.")
-        } else {
-            val loggedInUserId = principal.name.toLong()
-            userService.changePassword(loggedInUserId, userId, changePasswordReq)
-            ResponseEntity.ok("비밀번호 변경 성공")
-        }
+        userService.changePassword(userId, changePasswordReq)
+        return ResponseEntity.ok("비밀번호 변경 성공")
     }
 
     // 회원 탈퇴
     @DeleteMapping("/{userId}")
-    fun deleteUser(@PathVariable userId: Long, principal: Principal): ResponseEntity<String> {
-        val loggedInUserId = principal.name.toLong()
-        userService.deleteUser(loggedInUserId, userId)
+    fun deleteUser(@PathVariable userId: Long): ResponseEntity<String> {
+        userService.deleteUser(userId)
         return ResponseEntity.ok("회원 탈퇴 성공")
     }
 }

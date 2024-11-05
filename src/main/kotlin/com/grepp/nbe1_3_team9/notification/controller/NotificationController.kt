@@ -35,32 +35,32 @@ class NotificationController(private val notificationService: NotificationServic
 
     @GetMapping("/notifications")
     fun getNotifications(
-        @AuthenticationPrincipal userDetails: CustomUserDetails,
+        @AuthenticationPrincipal userDetails: CustomUserDetails?,
         @RequestParam(defaultValue = "false") unreadOnly: Boolean
     ): ResponseEntity<List<Notification>> {
-        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails?.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         return ResponseEntity.ok(notificationService.getNotifications(userId, unreadOnly))
     }
 
     @GetMapping("/notifications/unread-count")
-    fun getUnreadCount(@AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<Int> {
-        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+    fun getUnreadCount(@AuthenticationPrincipal userDetails: CustomUserDetails?): ResponseEntity<Int> {
+        val userId = userDetails?.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         return ResponseEntity.ok(notificationService.getUnreadCount(userId))
     }
 
     @PostMapping("/notifications/{notificationId}/read")
     fun markNotificationAsRead(
         @PathVariable notificationId: String,
-        @AuthenticationPrincipal userDetails: CustomUserDetails
+        @AuthenticationPrincipal userDetails: CustomUserDetails?
     ): ResponseEntity<Unit> {
-        val userId = userDetails.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
+        val userId = userDetails?.getUserId() ?: throw UserException(ExceptionMessage.USER_ID_NULL)
         notificationService.markAsRead(notificationId, userId)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping("/notifications/mark-all-read")
-    fun markAllNotificationsAsRead(@AuthenticationPrincipal userDetails: CustomUserDetails): ResponseEntity<Unit> {
-        val userId = userDetails.getUserId() ?:throw UserException(ExceptionMessage.USER_ID_NULL)
+    fun markAllNotificationsAsRead(@AuthenticationPrincipal userDetails: CustomUserDetails?): ResponseEntity<Unit> {
+        val userId = userDetails?.getUserId() ?:throw UserException(ExceptionMessage.USER_ID_NULL)
         notificationService.markAllAsRead(userId)
         return ResponseEntity.ok().build()
     }
