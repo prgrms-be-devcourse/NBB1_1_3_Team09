@@ -22,7 +22,7 @@ class OAuth2LoginSuccessHandler(
         response: HttpServletResponse,
         authentication: Authentication
     ) {
-        val user = authentication?.principal as OAuth2User
+        val user = authentication.principal as OAuth2User
         val email = user.attributes["email"] as? String ?
         val username = user.attributes["name"] as? String ?
 
@@ -31,11 +31,11 @@ class OAuth2LoginSuccessHandler(
             return
         }
 
-        val authentication = jwtUtil.createAuthentication(email)
-        val token = jwtUtil.generateToken(authentication, response)
+        val userAuthentication = jwtUtil.createAuthentication(email)
+        val token = jwtUtil.generateToken(userAuthentication, response)
         CookieUtil.createAccessTokenCookie(token.accessToken, response)
 
         log.info("OAuth2 로그인 성공 - 토큰을 쿠키에 저장했습니다.")
-        response.sendRedirect("/")
+        response.sendRedirect("http://localhost:3000/")
     }
 }

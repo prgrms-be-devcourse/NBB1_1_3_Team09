@@ -3,13 +3,19 @@ package com.grepp.nbe1_3_team9.admin.service.oauth2
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.grepp.nbe1_3_team9.admin.jwt.CookieUtil
 import com.grepp.nbe1_3_team9.admin.jwt.JwtUtil
+import com.grepp.nbe1_3_team9.admin.jwt.TokenRes
+import com.grepp.nbe1_3_team9.admin.service.CustomUserDetails
 import com.grepp.nbe1_3_team9.domain.entity.user.OAuthProvider
 import com.grepp.nbe1_3_team9.domain.entity.user.Role
 import com.grepp.nbe1_3_team9.domain.entity.user.User
 import com.grepp.nbe1_3_team9.domain.repository.user.UserRepository
+import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
@@ -79,7 +85,7 @@ class KakaoApiService(
         )
     }
 
-    override fun processUser(userInfo: OAuth2UserInfo): User {
+    override fun processUser(userInfo: OAuth2UserInfo, response: HttpServletResponse): TokenRes {
         val providerId = userInfo.providerId
         var user = userRepository.findByProviderId(providerId)
 
@@ -101,6 +107,15 @@ class KakaoApiService(
             log.info("기존 유저 로그인: {}", userInfo.name)
         }
 
-        return user
+        val authentication = UsernamePasswordAuthenticationToken(
+            CustomUserDetails(user), null, listOf(SimpleGrantedAuthority(user.role.name))
+        )
+        val token = jwtUtil.generateToken(authentication, response)
+
+        CookieUtil.createAccessTokenCookie(token.accessToken, response)
+        CookieUtil.createRefreshTokenCookie(token.refreshToken, response)
+
+        response.sendRedirect("http://localhost:3000/")
+        return token
     }
 }

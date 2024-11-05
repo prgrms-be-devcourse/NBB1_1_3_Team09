@@ -26,7 +26,7 @@ class SecurityConfig(
 
     companion object {
         private val AUTH_WHITELIST = arrayOf(
-            "/swagger-ui/**", "/api-docs", "/ws/**", "/users/signup", "/users/signin"
+            "/swagger-ui/**", "/api-docs", "/ws/**", "/users/signup", "/users/signin", "/users/signin/kakao"
         )
     }
 
@@ -47,8 +47,6 @@ class SecurityConfig(
             .httpBasic(AbstractHttpConfigurer<*, *>::disable)
             .oauth2Login { oauth2 ->
                 oauth2
-                    .defaultSuccessUrl("/", true)
-                    .failureUrl("/users/signin")
                     .successHandler(oAuth2LoginSuccessHandler)
                     .failureHandler(oAuth2LoginFailureHandler)
             }

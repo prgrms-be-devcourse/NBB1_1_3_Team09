@@ -61,7 +61,7 @@ class UserController(
             val accessToken = kakaoApiService.getAccessToken(code)
             val kakaoUserInfo = kakaoApiService.getUserInfo(accessToken)
 
-            kakaoApiService.processUser(kakaoUserInfo)
+            kakaoApiService.processUser(kakaoUserInfo, response)
 
             ResponseEntity.ok("카카오 로그인 성공, JWT 토큰이 쿠키에 저장되었습니다.")
         } catch (e: Exception) {
