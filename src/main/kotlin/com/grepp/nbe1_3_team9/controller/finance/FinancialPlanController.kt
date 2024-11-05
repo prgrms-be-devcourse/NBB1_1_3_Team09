@@ -59,10 +59,10 @@ class FinancialPlanController(
     }
 
     //설정한 항목들 전체 전송
-    @GetMapping("/{groupId}/items")
+    @GetMapping("/{eventId}/items")
     fun getFinancialPlanItems(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
     ):List<String>{
-        return financialPlanService.getFinancialPlanItems(groupId)
+        return financialPlanService.getFinancialPlanItems(eventId)
     }
 }

@@ -101,15 +101,14 @@ class FinancialPlanService (
         }
     }
 
-
     @Transactional
-    fun getFinancialPlanItems(groupId: Long) :List<String>{
-        val group=groupRepository.findById(groupId)
-        if(!group.isPresent){
-            throw FinancialPlanException(ExceptionMessage.GROUP_NOT_FOUND)
+    fun getFinancialPlanItems(eventId: Long) :List<String>{
+        val event=eventRepository.findById(eventId)
+        if(!event.isPresent){
+            throw FinancialPlanException(ExceptionMessage.EVENT_NOT_FOUND)
         }
 
-        return financialPlanRepository.findFinancialPlanItems(group.get())
+        return financialPlanRepository.findFinancialPlanItems(event.get())
     }
 
     private fun checkUserInGroup(groupId: Long, userId: Long) {
