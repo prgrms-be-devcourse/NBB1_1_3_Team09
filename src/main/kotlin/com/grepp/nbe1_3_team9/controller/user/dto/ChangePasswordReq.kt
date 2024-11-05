@@ -1,4 +1,6 @@
 package com.grepp.nbe1_3_team9.controller.user.dto
 
-class ChangePasswordReq {
-}
+data class ChangePasswordReq(
+    val currentPassword: String = "",
+    val newPassword: String = ""
+)

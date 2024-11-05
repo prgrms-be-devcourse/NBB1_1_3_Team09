@@ -1,4 +1,6 @@
 package com.grepp.nbe1_3_team9.common.exception.exceptions
 
-class ExchangeRateException {
-}
+import com.grepp.nbe1_3_team9.common.exception.BaseException
+import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
+
+class ExchangeRateException(message: ExceptionMessage) : BaseException(message.text)
