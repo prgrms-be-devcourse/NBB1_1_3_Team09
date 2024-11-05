@@ -4,4 +4,4 @@ docker stop my-spring-boot-app || true
 docker rm my-spring-boot-app || true
 
 # 최신 이미지 가져오기
-docker pull <your-docker-hub-username>/my-spring-boot-app:latest
+docker pull geonoo/my-spring-boot-app:latest
