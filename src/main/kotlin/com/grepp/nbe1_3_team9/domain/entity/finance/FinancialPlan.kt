@@ -1,5 +1,6 @@
 package com.grepp.nbe1_3_team9.domain.entity.finance
 
+import com.grepp.nbe1_3_team9.domain.entity.event.Event
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
 import jakarta.persistence.*
 import java.math.BigDecimal
@@ -18,8 +19,8 @@ class FinancialPlan (
     var expenseItemId: Long = 0L,
 ){
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id", nullable = false)
-    lateinit var group: Group
+    @JoinColumn(name = "event_id", nullable = false)
+    lateinit var event: Event
 
     fun updateExpenseItem(itemName: String, amount: BigDecimal) {
         this.itemName = itemName
