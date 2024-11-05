@@ -67,5 +67,6 @@ jobs:
           script: |
             docker pull geonoo/my-spring-boot-app:latest
             docker tag geonoo/my-spring-boot-app:latest my-spring-boot-app
-            docker stop server
-            docker run -d -rm --name my-spring-boot-app -p 8080:8080 my-spring-boot-app
+            docker stop my-spring-boot-app || true
+            docker rm my-spring-boot-app || true
+            docker run -d --rm --name my-spring-boot-app -p 8080:8080 my-spring-boot-app
