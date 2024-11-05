@@ -86,8 +86,13 @@ class FinancialPlanService (
     }
 
     @Transactional
-    fun deleteFinancialPlan(groupId: Long, deleteFinancialPlanReq: DeleteFinancialPlanReq, userId: Long) {
-        checkUserInGroup(groupId, userId)
+    fun deleteFinancialPlan(eventId: Long, deleteFinancialPlanReq: DeleteFinancialPlanReq, userId: Long) {
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
+        checkUserInGroup(event.group.groupId, userId)
 
         try {
             financialPlanRepository.deleteById(deleteFinancialPlanReq.financialPlanId)

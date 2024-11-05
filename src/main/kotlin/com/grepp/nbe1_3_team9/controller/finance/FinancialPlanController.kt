@@ -48,14 +48,14 @@ class FinancialPlanController(
         return financialPlanService.updateFinancialPlan(eventId, financialPlanDTO, userId)
     }
 
-    @DeleteMapping("/{groupId}")
+    @DeleteMapping("/{eventId}")
     fun deleteFinancialPlan(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @RequestBody deleteFinancialPlanReq: DeleteFinancialPlanReq,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ){
         val userId=customUserDetails.getUserId()
-        financialPlanService.deleteFinancialPlan(groupId, deleteFinancialPlanReq, userId)
+        financialPlanService.deleteFinancialPlan(eventId, deleteFinancialPlanReq, userId)
     }
 
     //설정한 항목들 전체 전송
