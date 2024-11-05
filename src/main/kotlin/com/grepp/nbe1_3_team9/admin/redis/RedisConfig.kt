@@ -1,7 +1,9 @@
 package com.grepp.nbe1_3_team9.admin.redis
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.grepp.nbe1_3_team9.notification.entity.Notification
 import org.springframework.beans.factory.annotation.Value
@@ -80,5 +82,4 @@ class RedisConfig(
             .cacheDefaults(cacheConfig)
             .build()
     }
-
 }
