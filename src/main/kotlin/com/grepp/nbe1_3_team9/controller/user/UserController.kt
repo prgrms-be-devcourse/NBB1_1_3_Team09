@@ -111,8 +111,8 @@ class UserController(
 
     // 회원 탈퇴
     @DeleteMapping("/{userId}")
-    fun deleteUser(@PathVariable userId: Long): ResponseEntity<String> {
-        userService.deleteUser(userId)
+    fun deleteUser(@PathVariable userId: Long, response: HttpServletResponse): ResponseEntity<String> {
+        userService.deleteUser(userId, response)
         return ResponseEntity.ok("회원 탈퇴 성공")
     }
 }
