@@ -118,12 +118,13 @@ class AccountBookService(
             throw AccountBookException(ExceptionMessage.EXPENSE_NOT_FOUND)
         }
 
-        val groupId: Long? =
-            updateAccountBookReq.expenseId.let { accountBookRepository.findById(it).get().group.groupId }
-        val userId = user.toLong()
-        if (groupId != null) {
-            checkUserInGroup(groupId, userId)
+        val event:Event = try {
+            accountBookRepository.findById(updateAccountBookReq.expenseId).get().event;
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
         }
+        val userId = user.toLong()
+        checkUserInGroup(event.group.groupId, userId)
 
 //        val expense: Expense = em.find<T>(Expense::class.java, updateAccountBookReq.getExpenseId())
         val expense: Expense? = em.find(Expense::class.java, updateAccountBookReq.expenseId)
