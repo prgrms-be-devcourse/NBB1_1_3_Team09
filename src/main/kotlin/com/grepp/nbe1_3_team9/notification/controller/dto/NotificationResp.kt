@@ -8,5 +8,5 @@ data class NotificationResp(
     val receiverId: Long,
     val invitationId: Long,
     val createdAt: String,
-    val read: Boolean
+    val isRead: Boolean
 )

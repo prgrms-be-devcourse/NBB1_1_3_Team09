@@ -18,10 +18,10 @@ data class Notification(
     val senderId: Long,
     val receiverId: Long,
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    var read: Boolean = false,
+    var isRead: Boolean = false,
     val invitationId: Long
 ) : Serializable {
     fun markAsRead() {
-        this.read = true
+        this.isRead = true
     }
 }

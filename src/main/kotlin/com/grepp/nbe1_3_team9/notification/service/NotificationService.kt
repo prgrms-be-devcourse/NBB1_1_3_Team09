@@ -36,7 +36,7 @@ class NotificationService(
             senderId = notificationResp.senderId,
             receiverId = notificationResp.receiverId,
             createdAt = LocalDateTime.parse(notificationResp.createdAt),
-            read = notificationResp.read,
+            isRead = notificationResp.isRead,
             invitationId = notificationResp.invitationId
         )
         log.info("보낸 사람: ${notificationResp.senderId}")
@@ -59,7 +59,7 @@ class NotificationService(
     fun markAsRead(notificationId: String, userId: Long) {
         val notification = notificationRepository.findByIdAndReceiverId(notificationId, userId)
         if (notification != null) {
-            val updatedNotification = notification.copy(read = true)
+            val updatedNotification = notification.copy(isRead = true)
             notificationRepository.save(updatedNotification)
 
             val unreadCount = getUnreadCount(userId)

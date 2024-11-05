@@ -26,7 +26,7 @@ class NotificationRepository(
     fun findByReceiverIdAndReadFalse(receiverId: Long): List<Notification> {
         val key = KEY_PREFIX + receiverId
         return notificationRedisTemplate.opsForHash<String, Notification>().values(key)
-            .filter { !it.read }
+            .filter { !it.isRead }
     }
 
     fun findByReceiverId(receiverId: Long): List<Notification> {
@@ -37,7 +37,7 @@ class NotificationRepository(
     fun countByReceiverIdAndReadFalse(receiverId: Long): Long {
         val key = KEY_PREFIX + receiverId
         return notificationRedisTemplate.opsForHash<String, Notification>().values(key)
-            .count { !it.read }
+            .count { !it.isRead }
             .toLong()
     }
 
@@ -46,8 +46,8 @@ class NotificationRepository(
         val notifications = notificationRedisTemplate.opsForHash<String, Notification>().entries(key)
 
         val updatedNotifications = notifications.mapValues { (_, notification) ->
-            if (!notification.read && notification.type != "INVITE") {
-                notification.copy(read = true)
+            if (!notification.isRead && notification.type != "INVITE") {
+                notification.copy(isRead = true)
             } else {
                 notification
             }
