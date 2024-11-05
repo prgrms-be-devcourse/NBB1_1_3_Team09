@@ -9,7 +9,8 @@ data class EventLocationInfoDto(
     val location: LocationEventDto,
     val description: String?,
     val visitStartTime: LocalDateTime,
-    val visitEndTime: LocalDateTime
+    val visitEndTime: LocalDateTime,
+    val color: String
 ) {
     companion object {
         fun from(eventLocation: EventLocation): EventLocationInfoDto {
@@ -18,7 +19,8 @@ data class EventLocationInfoDto(
                 location = LocationEventDto.from(eventLocation.location),
                 description = eventLocation.description,
                 visitStartTime = eventLocation.visitStartTime,
-                visitEndTime = eventLocation.visitEndTime
+                visitEndTime = eventLocation.visitEndTime,
+                color = eventLocation.color
             )
         }
     }

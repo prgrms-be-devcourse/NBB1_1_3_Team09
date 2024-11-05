@@ -42,7 +42,8 @@ class EventLocationService(
             location = location,
             description = req.description,
             visitStartTime = req.visitStartTime,
-            visitEndTime = req.visitEndTime
+            visitEndTime = req.visitEndTime,
+            color = req.color
         )
 
         val savedEventLocation = eventLocationRepository.save(eventLocation)

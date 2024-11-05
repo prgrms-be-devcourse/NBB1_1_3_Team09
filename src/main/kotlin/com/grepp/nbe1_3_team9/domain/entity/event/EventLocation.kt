@@ -26,7 +26,12 @@ class EventLocation(
     var visitStartTime: LocalDateTime,
 
     @Column(nullable = false)
-    var visitEndTime: LocalDateTime
+    var visitEndTime: LocalDateTime,
+
+    @Column(nullable = false)
+    var color: String
+
+
 ) {
     // 비즈니스 메서드
     fun updateDescription(description: String?) {
@@ -52,14 +57,16 @@ class EventLocation(
             location: Location,
             description: String?,
             visitStartTime: LocalDateTime,
-            visitEndTime: LocalDateTime
+            visitEndTime: LocalDateTime,
+            color: String
         ): EventLocation {
             return EventLocation(
                 event = event,
                 location = location,
                 description = description,
                 visitStartTime = visitStartTime,
-                visitEndTime = visitEndTime
+                visitEndTime = visitEndTime,
+                color = color
             )
         }
     }
