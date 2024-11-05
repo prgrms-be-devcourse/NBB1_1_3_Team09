@@ -44,7 +44,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          tags: <docker-hub-username>/my-spring-boot-app:latest
+          tags: geonoo/my-spring-boot-app:latest
           push: true
           
       - name: Configure AWS credentials
