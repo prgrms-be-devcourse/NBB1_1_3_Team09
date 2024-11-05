@@ -29,13 +29,13 @@ class AccountBookController(
     }
 
     // 가계부 목록 전체 조회
-    @GetMapping("/{groupId}")
+    @GetMapping("/{eventId}")
     fun findAllAccountBooks(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ): List<AccountBookAllResp> {
         val userId: String = customUserDetails.username
-        return accountBookService.findAllAccountBooks(groupId, userId)
+        return accountBookService.findAllAccountBooks(eventId, userId)
     }
 
     // 가계부 목록 상세 조회

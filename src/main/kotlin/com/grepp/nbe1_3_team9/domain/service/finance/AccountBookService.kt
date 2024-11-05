@@ -56,11 +56,18 @@ class AccountBookService(
     }
 
     //가계부 목록 전체 조회
-    fun findAllAccountBooks(groupId: Long, user: String): MutableList<AccountBookAllResp> {
+    fun findAllAccountBooks(eventId: Long, user: String): MutableList<AccountBookAllResp> {
         val userId = user.toLong()
-        checkUserInGroup(groupId, userId)
 
-        val expenses: List<Expense> = accountBookRepository.findAllByGroup_GroupId(groupId)
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
+
+        checkUserInGroup(event.group.groupId, userId)
+
+        val expenses: List<Expense> = accountBookRepository.findAllByEvent_eventId(eventId)
 
         return expenses.map { AccountBookAllResp.toDTO(it) }.toMutableList()
     }
