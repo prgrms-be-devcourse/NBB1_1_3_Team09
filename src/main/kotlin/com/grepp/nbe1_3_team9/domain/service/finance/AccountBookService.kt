@@ -6,9 +6,11 @@ import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.AccountBookAllR
 import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.AccountBookOneResp
 import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.AccountBookReq
 import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.UpdateAccountBookReq
+import com.grepp.nbe1_3_team9.domain.entity.event.Event
 import com.grepp.nbe1_3_team9.domain.entity.finance.Expense
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
 import com.grepp.nbe1_3_team9.domain.entity.user.User
+import com.grepp.nbe1_3_team9.domain.repository.event.eventrepo.EventRepository
 import com.grepp.nbe1_3_team9.domain.repository.finance.AccountBookRepository
 import com.grepp.nbe1_3_team9.domain.repository.group.GroupRepository
 import com.grepp.nbe1_3_team9.domain.repository.group.membership.GroupMembershipRepository
@@ -25,25 +27,27 @@ class AccountBookService(
     private val groupMembershipRepository: GroupMembershipRepository,
     private val em: EntityManager,
     private val userRepository: UserRepository,
+    private val eventRepository: EventRepository,
 ) {
     //가계부 지출 기록
-    fun addAccountBook(groupId: Long, accountBookReq: AccountBookReq, user: String) {
+    fun addAccountBook(eventId: Long, accountBookReq: AccountBookReq, user: String) {
         if (accountBookReq.receiptImage != null) {
             val fileData: ByteArray = Base64.getDecoder().decode(accountBookReq.receiptImage)
             accountBookReq.receiptImageByte=fileData
         }
 
-//        if (accountBookReq.expenseDate == null) {
-//            accountBookReq.expenseDate=LocalDateTime.now()
-//        }
+        val event: Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
 
         val expense: Expense = AccountBookReq.toEntity(accountBookReq)
 
         val userId = user.toLong()
-        checkUserInGroup(groupId, userId)
+        checkUserInGroup(event.group.groupId, userId)
 
-        val group: Optional<Group> = groupRepository.findById(groupId)
-        expense.group=group.get()
+        expense.event=event
         try {
             accountBookRepository.save(expense)
         } catch (e: Exception) {

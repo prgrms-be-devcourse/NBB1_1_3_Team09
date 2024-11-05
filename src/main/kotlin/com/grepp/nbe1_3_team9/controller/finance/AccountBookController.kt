@@ -17,15 +17,15 @@ class AccountBookController(
 ) {
 
     // 가계부 지출 기록
-    @PostMapping("/{groupId}")
+    @PostMapping("/{eventId}")
     @ResponseStatus(HttpStatus.CREATED)
     fun addAccountBook(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @RequestBody accountBookReq: AccountBookReq,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
         val userId: String = customUserDetails.username
-        accountBookService.addAccountBook(groupId, accountBookReq, userId)
+        accountBookService.addAccountBook(eventId, accountBookReq, userId)
     }
 
     // 가계부 목록 전체 조회
