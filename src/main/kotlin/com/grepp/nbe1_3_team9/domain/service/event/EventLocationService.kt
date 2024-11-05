@@ -2,6 +2,7 @@ package com.grepp.nbe1_3_team9.domain.service.event
 
 import com.grepp.nbe1_3_team9.common.exception.ExceptionMessage
 import com.grepp.nbe1_3_team9.common.exception.exceptions.EventException
+import com.grepp.nbe1_3_team9.common.exception.exceptions.EventLocationException
 import com.grepp.nbe1_3_team9.common.exception.exceptions.LocationException
 import com.grepp.nbe1_3_team9.controller.event.dto.AddEventLocationReq
 import com.grepp.nbe1_3_team9.controller.event.dto.EventLocationDto
@@ -36,6 +37,11 @@ class EventLocationService(
     fun addLocationToEvent(eventId: Long, req: AddEventLocationReq): EventLocationDto {
         val event = findEventByIdOrThrowEventException(eventId)
         val location = findLocationByIdOrThrowLocationException(req.locationId)
+
+        // 저장할 때 겹치는 시간대 체크
+        if (eventLocationRepository.existsByEventIdAndVisitTimes(eventId, req.visitStartTime, req.visitEndTime)) {
+            throw EventLocationException(ExceptionMessage.UNAVAILABLE_TIME)
+        }
 
         val eventLocation = EventLocation.create(
             event = event,
