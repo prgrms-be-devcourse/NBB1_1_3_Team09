@@ -16,15 +16,15 @@ class FinancialPlanController(
 ) {
 
     //금전 계획 추가
-    @PostMapping("/{groupId}")
+    @PostMapping("/{eventId}")
     @ResponseStatus(HttpStatus.CREATED)
     fun addFinancialPlan(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @RequestBody financialPlanDTO: AddFinancialPlanReq,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
         val userId=customUserDetails.getUserId()
-        financialPlanService.addFinancialPlan(groupId, financialPlanDTO, userId)
+        financialPlanService.addFinancialPlan(eventId, financialPlanDTO, userId)
     }
 
     //금전 계획 조회
