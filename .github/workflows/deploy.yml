@@ -33,7 +33,7 @@ jobs:
 
       - name: Set up application.yaml from GitHub Secrets
         run: |
-          touch ./src/main/resources/application.yaml
+          mkdir -p ./src/main/resources
           echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yaml
 
       - name: Verify application.yaml content
