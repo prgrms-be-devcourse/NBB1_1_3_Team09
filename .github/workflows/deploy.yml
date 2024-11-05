@@ -66,6 +66,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            mkdir -p /home/ubuntu/app/config
+            chmod -R 755 /home/ubuntu/app/config
             aws s3 cp s3://voya9e-s3/config/application.yaml /home/ubuntu/app/config/application.yaml
             docker pull geonoo/my-spring-boot-app:latest
             docker stop my-spring-boot-app || true
