@@ -30,6 +30,14 @@ jobs:
           
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+
+      - name: Set up application.yaml from GitHub Secrets
+        run: |
+          touch ./src/main/resources/application.yaml
+          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yaml
+
+      - name: Verify application.yaml content
+        run: cat ./src/main/resources/application.yaml
         
       - name: Build project
         run: ./gradlew clean build -x test
