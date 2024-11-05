@@ -17,34 +17,34 @@ class AccountBookController(
 ) {
 
     // 가계부 지출 기록
-    @PostMapping("/{groupId}")
+    @PostMapping("/{eventId}")
     @ResponseStatus(HttpStatus.CREATED)
     fun addAccountBook(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @RequestBody accountBookReq: AccountBookReq,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
-        val userId: String = customUserDetails.username
-        accountBookService.addAccountBook(groupId, accountBookReq, userId)
+        val userId = customUserDetails.getUserId()
+        accountBookService.addAccountBook(eventId, accountBookReq, userId)
     }
 
     // 가계부 목록 전체 조회
-    @GetMapping("/{groupId}")
+    @GetMapping("/{eventId}")
     fun findAllAccountBooks(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ): List<AccountBookAllResp> {
-        val userId: String = customUserDetails.username
-        return accountBookService.findAllAccountBooks(groupId, userId)
+        val userId = customUserDetails.getUserId()
+        return accountBookService.findAllAccountBooks(eventId, userId)
     }
 
     // 가계부 목록 상세 조회
     @PostMapping
     fun findAccountBook(
-        @RequestBody expenseId: Map<String?, String>,
+        @RequestBody expenseId: Map<String, String>,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ): AccountBookOneResp {
-        val userId: String = customUserDetails.username
+        val userId = customUserDetails.getUserId()
         return accountBookService.findAccountBook(expenseId["expenseId"]!!.toLong(), userId)
     }
 
@@ -54,17 +54,17 @@ class AccountBookController(
         @RequestBody updateAccountBookReq: UpdateAccountBookReq,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
-        val userId: String = customUserDetails.username
+        val userId = customUserDetails.getUserId()
         accountBookService.updateAccountBook(updateAccountBookReq, userId)
     }
 
     // 가계부 지출 삭제
     @DeleteMapping
     fun deleteAccountBook(
-        @RequestBody expenseId: Map<String?, String>,
+        @RequestBody expenseId: Map<String, String>,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
-        val userId: String = customUserDetails.username
+        val userId = customUserDetails.getUserId()
         accountBookService.deleteAccountBook(expenseId["expenseId"]!!.toLong(), userId)
     }
 

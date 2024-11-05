@@ -16,53 +16,53 @@ class FinancialPlanController(
 ) {
 
     //금전 계획 추가
-    @PostMapping("/{groupId}")
+    @PostMapping("/{eventId}")
     @ResponseStatus(HttpStatus.CREATED)
     fun addFinancialPlan(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @RequestBody financialPlanDTO: AddFinancialPlanReq,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ) {
         val userId=customUserDetails.getUserId()
-        financialPlanService.addFinancialPlan(groupId, financialPlanDTO, userId)
+        financialPlanService.addFinancialPlan(eventId, financialPlanDTO, userId)
     }
 
     //금전 계획 조회
-    @GetMapping("/{groupId}")
+    @GetMapping("/{eventId}")
     fun getFinancialPlan(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ):List<FinancialPlanDTO> {
         val userId=customUserDetails.getUserId()
-        return financialPlanService.getFinancialPlan(groupId, userId)
+        return financialPlanService.getFinancialPlan(eventId, userId)
     }
 
     //금전 계획 수정
-    @PutMapping("/{groupId}")
+    @PutMapping("/{eventId}")
     fun updateFinancialPlan(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @RequestBody financialPlanDTO: FinancialPlanDTO,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ):FinancialPlanDTO {
         val userId=customUserDetails.getUserId()
-        return financialPlanService.updateFinancialPlan(groupId, financialPlanDTO, userId)
+        return financialPlanService.updateFinancialPlan(eventId, financialPlanDTO, userId)
     }
 
-    @DeleteMapping("/{groupId}")
+    @DeleteMapping("/{eventId}")
     fun deleteFinancialPlan(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
         @RequestBody deleteFinancialPlanReq: DeleteFinancialPlanReq,
         @AuthenticationPrincipal customUserDetails: CustomUserDetails
     ){
         val userId=customUserDetails.getUserId()
-        financialPlanService.deleteFinancialPlan(groupId, deleteFinancialPlanReq, userId)
+        financialPlanService.deleteFinancialPlan(eventId, deleteFinancialPlanReq, userId)
     }
 
     //설정한 항목들 전체 전송
-    @GetMapping("/{groupId}/items")
+    @GetMapping("/{eventId}/items")
     fun getFinancialPlanItems(
-        @PathVariable groupId: Long,
+        @PathVariable eventId: Long,
     ):List<String>{
-        return financialPlanService.getFinancialPlanItems(groupId)
+        return financialPlanService.getFinancialPlanItems(eventId)
     }
 }

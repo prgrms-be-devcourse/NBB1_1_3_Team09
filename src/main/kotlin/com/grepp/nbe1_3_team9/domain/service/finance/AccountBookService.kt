@@ -6,9 +6,12 @@ import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.AccountBookAllR
 import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.AccountBookOneResp
 import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.AccountBookReq
 import com.grepp.nbe1_3_team9.controller.finance.dto.accountBook.UpdateAccountBookReq
+import com.grepp.nbe1_3_team9.domain.entity.event.Event
 import com.grepp.nbe1_3_team9.domain.entity.finance.Expense
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
+import com.grepp.nbe1_3_team9.domain.entity.user.QUser.user
 import com.grepp.nbe1_3_team9.domain.entity.user.User
+import com.grepp.nbe1_3_team9.domain.repository.event.eventrepo.EventRepository
 import com.grepp.nbe1_3_team9.domain.repository.finance.AccountBookRepository
 import com.grepp.nbe1_3_team9.domain.repository.group.GroupRepository
 import com.grepp.nbe1_3_team9.domain.repository.group.membership.GroupMembershipRepository
@@ -25,25 +28,26 @@ class AccountBookService(
     private val groupMembershipRepository: GroupMembershipRepository,
     private val em: EntityManager,
     private val userRepository: UserRepository,
+    private val eventRepository: EventRepository,
 ) {
     //가계부 지출 기록
-    fun addAccountBook(groupId: Long, accountBookReq: AccountBookReq, user: String) {
+    fun addAccountBook(eventId: Long, accountBookReq: AccountBookReq, userId: Long) {
         if (accountBookReq.receiptImage != null) {
             val fileData: ByteArray = Base64.getDecoder().decode(accountBookReq.receiptImage)
             accountBookReq.receiptImageByte=fileData
         }
 
-//        if (accountBookReq.expenseDate == null) {
-//            accountBookReq.expenseDate=LocalDateTime.now()
-//        }
+        val event: Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
 
         val expense: Expense = AccountBookReq.toEntity(accountBookReq)
 
-        val userId = user.toLong()
-        checkUserInGroup(groupId, userId)
+        checkUserInGroup(event.group.groupId, userId)
 
-        val group: Optional<Group> = groupRepository.findById(groupId)
-        expense.group=group.get()
+        expense.event=event
         try {
             accountBookRepository.save(expense)
         } catch (e: Exception) {
@@ -52,18 +56,23 @@ class AccountBookService(
     }
 
     //가계부 목록 전체 조회
-    fun findAllAccountBooks(groupId: Long, user: String): MutableList<AccountBookAllResp> {
-        val userId = user.toLong()
-        checkUserInGroup(groupId, userId)
+    fun findAllAccountBooks(eventId: Long, userId: Long): MutableList<AccountBookAllResp> {
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
 
-        val expenses: List<Expense> = accountBookRepository.findAllByGroup_GroupId(groupId)
+        checkUserInGroup(event.group.groupId, userId)
+
+        val expenses: List<Expense> = accountBookRepository.findAllByEvent_eventId(eventId)
 
         return expenses.map { AccountBookAllResp.toDTO(it) }.toMutableList()
     }
 
     //가계부 목록 상세 조회
     @Transactional
-    fun findAccountBook(expenseId: Long, user: String): AccountBookOneResp {
+    fun findAccountBook(expenseId: Long, userId: Long): AccountBookOneResp {
         val expense: Expense? = accountBookRepository.findById(expenseId)
             .orElseThrow {
 //                log.warn(">>>> {} : {} <<<<", expenseId, ExceptionMessage.EXPENSE_NOT_FOUND)
@@ -74,11 +83,14 @@ class AccountBookService(
             throw AccountBookException(ExceptionMessage.EXPENSE_NOT_FOUND)
         }
 
-        val groupId: Long? = accountBookRepository.findById(expenseId).get().group.groupId
-        val userId = user.toLong()
-        if (groupId != null) {
-            checkUserInGroup(groupId, userId)
+        val eventId: Long = accountBookRepository.findById(expenseId).get().event.eventId
+
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
         }
+        checkUserInGroup(event.group.groupId, userId)
 
         val accountBookOneResp: AccountBookOneResp = AccountBookOneResp.toDTO(expense)
 
@@ -94,7 +106,7 @@ class AccountBookService(
 
     //가계부 지출 수정
     @Transactional
-    fun updateAccountBook(updateAccountBookReq: UpdateAccountBookReq, user: String) {
+    fun updateAccountBook(updateAccountBookReq: UpdateAccountBookReq, userId: Long) {
         try {
             updateAccountBookReq.expenseId.let {
                 accountBookRepository.findById(it)
@@ -103,12 +115,12 @@ class AccountBookService(
             throw AccountBookException(ExceptionMessage.EXPENSE_NOT_FOUND)
         }
 
-        val groupId: Long? =
-            updateAccountBookReq.expenseId.let { accountBookRepository.findById(it).get().group.groupId }
-        val userId = user.toLong()
-        if (groupId != null) {
-            checkUserInGroup(groupId, userId)
+        val event:Event = try {
+            accountBookRepository.findById(updateAccountBookReq.expenseId).get().event;
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
         }
+        checkUserInGroup(event.group.groupId, userId)
 
 //        val expense: Expense = em.find<T>(Expense::class.java, updateAccountBookReq.getExpenseId())
         val expense: Expense? = em.find(Expense::class.java, updateAccountBookReq.expenseId)
@@ -138,20 +150,20 @@ class AccountBookService(
 
     //가계부 지출 삭제
     @Transactional
-    fun deleteAccountBook(expenseId: Long?, user: String) {
+    fun deleteAccountBook(expenseId: Long, userId: Long) {
         try {
-            if (expenseId != null) {
-                accountBookRepository.findById(expenseId)
-            }
+            accountBookRepository.findById(expenseId)
         } catch (e: Exception) {
             throw AccountBookException(ExceptionMessage.EXPENSE_NOT_FOUND)
         }
 
-        val groupId: Long? = accountBookRepository.findById(expenseId!!).get().group.groupId
-        val userId = user.toLong()
-        if (groupId != null) {
-            checkUserInGroup(groupId, userId)
+        val event:Event = try {
+            accountBookRepository.findById(expenseId).get().event;
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
         }
+
+        checkUserInGroup(event.group.groupId, userId)
 
         accountBookRepository.deleteById(expenseId)
     }

@@ -6,9 +6,11 @@ import com.grepp.nbe1_3_team9.common.exception.exceptions.FinancialPlanException
 import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.AddFinancialPlanReq
 import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.DeleteFinancialPlanReq
 import com.grepp.nbe1_3_team9.controller.finance.dto.financialPlan.FinancialPlanDTO
+import com.grepp.nbe1_3_team9.domain.entity.event.Event
 import com.grepp.nbe1_3_team9.domain.entity.finance.FinancialPlan
 import com.grepp.nbe1_3_team9.domain.entity.group.Group
 import com.grepp.nbe1_3_team9.domain.entity.user.User
+import com.grepp.nbe1_3_team9.domain.repository.event.eventrepo.EventRepository
 import com.grepp.nbe1_3_team9.domain.repository.finance.FinancialPlanRepository
 import com.grepp.nbe1_3_team9.domain.repository.group.GroupRepository
 import com.grepp.nbe1_3_team9.domain.repository.group.membership.GroupMembershipRepository
@@ -26,18 +28,21 @@ class FinancialPlanService (
     private val userRepository: UserRepository,
     private val groupMembershipRepository: GroupMembershipRepository,
     private val em: EntityManager,
+    private val eventRepository: EventRepository,
 ){
     @Transactional
-    fun addFinancialPlan(groupId: Long, financialPlanDTO: AddFinancialPlanReq, userId: Long) {
-        checkUserInGroup(groupId, userId)
-
-        val financialPlan:FinancialPlan = AddFinancialPlanReq.toEntity(financialPlanDTO)
-        val group = groupRepository.findById(groupId)
-        if(!group.isPresent){
-            throw FinancialPlanException(ExceptionMessage.GROUP_NOT_FOUND)
+    fun addFinancialPlan(eventId: Long, financialPlanDTO: AddFinancialPlanReq, userId: Long) {
+        val event: Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
         }
 
-        financialPlan.group=group.get()
+        checkUserInGroup(event.group.groupId, userId)
+
+        val financialPlan:FinancialPlan = AddFinancialPlanReq.toEntity(financialPlanDTO)
+
+        financialPlan.event=event
         val result=financialPlanRepository.save(financialPlan)
 
         if(result.itemName!=financialPlan.itemName){
@@ -46,17 +51,28 @@ class FinancialPlanService (
     }
 
     @Transactional
-    fun getFinancialPlan(groupId: Long, userId: Long):MutableList<FinancialPlanDTO> {
-        checkUserInGroup(groupId, userId)
+    fun getFinancialPlan(eventId: Long, userId: Long):MutableList<FinancialPlanDTO> {
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
 
-        val financialPlanList = financialPlanRepository.findAllByGroup_GroupId(groupId)
+        checkUserInGroup(event.group.groupId, userId)
+
+        val financialPlanList = financialPlanRepository.findAllByEvent_EventId(eventId)
 
         return financialPlanList.map { FinancialPlanDTO.toDTO(it) }.toMutableList()
     }
 
     @Transactional
-    fun updateFinancialPlan(groupId:Long, financialPlanDTO: FinancialPlanDTO, userId: Long): FinancialPlanDTO {
-        checkUserInGroup(groupId, userId)
+    fun updateFinancialPlan(eventId:Long, financialPlanDTO: FinancialPlanDTO, userId: Long): FinancialPlanDTO {
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
+        checkUserInGroup(event.group.groupId, userId)
 
         val financialPlan=em.find(FinancialPlan::class.java, financialPlanDTO.financialPlanId)
         financialPlan.updateExpenseItem(financialPlanDTO.itemName, BigDecimal(financialPlanDTO.amount))
@@ -70,8 +86,13 @@ class FinancialPlanService (
     }
 
     @Transactional
-    fun deleteFinancialPlan(groupId: Long, deleteFinancialPlanReq: DeleteFinancialPlanReq, userId: Long) {
-        checkUserInGroup(groupId, userId)
+    fun deleteFinancialPlan(eventId: Long, deleteFinancialPlanReq: DeleteFinancialPlanReq, userId: Long) {
+        val event:Event = try {
+            eventRepository.findByEventId(eventId);
+        }catch (e:Exception){
+            throw AccountBookException(ExceptionMessage.EVENT_NOT_FOUND);
+        }
+        checkUserInGroup(event.group.groupId, userId)
 
         try {
             financialPlanRepository.deleteById(deleteFinancialPlanReq.financialPlanId)
@@ -80,15 +101,14 @@ class FinancialPlanService (
         }
     }
 
-
     @Transactional
-    fun getFinancialPlanItems(groupId: Long) :List<String>{
-        val group=groupRepository.findById(groupId)
-        if(!group.isPresent){
-            throw FinancialPlanException(ExceptionMessage.GROUP_NOT_FOUND)
+    fun getFinancialPlanItems(eventId: Long) :List<String>{
+        val event=eventRepository.findById(eventId)
+        if(!event.isPresent){
+            throw FinancialPlanException(ExceptionMessage.EVENT_NOT_FOUND)
         }
 
-        return financialPlanRepository.findFinancialPlanItems(group.get())
+        return financialPlanRepository.findFinancialPlanItems(event.get())
     }
 
     private fun checkUserInGroup(groupId: Long, userId: Long) {
