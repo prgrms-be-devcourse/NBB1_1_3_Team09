@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Repository
 class EventLocationRepositoryImpl(
@@ -25,5 +26,17 @@ class EventLocationRepositoryImpl(
             .where(eventLocation.event.eq(event).and(formattedDate.eq(date.toString())))
             .orderBy(eventLocation.visitStartTime.asc())
             .fetch()
+    }
+
+    override fun existsByEventIdAndVisitTimes(eventId: Long, visitStartTime: LocalDateTime, visitEndTime: LocalDateTime): Boolean {
+        val eventLocation = QEventLocation.eventLocation
+
+        return queryFactory.selectFrom(eventLocation)
+            .where(
+                eventLocation.event.eventId.eq(eventId)
+                    .and(eventLocation.visitStartTime.lt(visitEndTime))
+                    .and(eventLocation.visitEndTime.gt(visitStartTime))
+            )
+            .fetchOne() != null
     }
 }

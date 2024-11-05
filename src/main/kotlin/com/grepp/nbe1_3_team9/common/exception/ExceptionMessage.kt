@@ -51,5 +51,6 @@ enum class ExceptionMessage(val text: String) {
     LOCATION_NOT_FOUND("해당 장소를 찾을 수 없습니다."),
 
     //EventLocation
-    EVENT_LOCATION_LOCKED("이미 다른 사용자가 수정 중입니다.")
+    EVENT_LOCATION_LOCKED("이미 다른 사용자가 수정 중입니다."),
+    UNAVAILABLE_TIME("해당 시간대는 이미 예약되어 있습니다.")
 }
