@@ -1,5 +1,6 @@
 package com.grepp.nbe1_3_team9.domain.service.user
 
+import com.grepp.nbe1_3_team9.admin.jwt.CookieUtil
 import com.grepp.nbe1_3_team9.admin.jwt.JwtUtil
 import com.grepp.nbe1_3_team9.admin.jwt.TokenRes
 import com.grepp.nbe1_3_team9.admin.service.CustomUserDetails
@@ -8,6 +9,7 @@ import com.grepp.nbe1_3_team9.common.exception.exceptions.UserException
 import com.grepp.nbe1_3_team9.controller.user.dto.*
 import com.grepp.nbe1_3_team9.domain.entity.user.Role
 import com.grepp.nbe1_3_team9.domain.entity.user.User
+import com.grepp.nbe1_3_team9.domain.repository.group.membership.GroupMembershipRepository
 import com.grepp.nbe1_3_team9.domain.repository.user.UserRepository
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
@@ -24,7 +26,8 @@ import java.lang.IllegalArgumentException
 class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtUtil: JwtUtil
+    private val jwtUtil: JwtUtil,
+    private val groupMembershipRepository: GroupMembershipRepository
 ) {
 
     private val log = LoggerFactory.getLogger(UserService::class.java)
@@ -101,7 +104,7 @@ class UserService(
 
     // 회원 정보 삭제
     @Transactional
-    fun deleteUser(targetUserId: Long) {
+    fun deleteUser(targetUserId: Long, response: HttpServletResponse) {
         val authentication = SecurityContextHolder.getContext().authentication
         val loggedInUserId = (authentication.principal as? CustomUserDetails)?.getUserId()
             ?: throw UserException(ExceptionMessage.UNAUTHORIZED_ACTION)
@@ -109,8 +112,13 @@ class UserService(
         checkAuthorization(loggedInUserId, targetUserId)
 
         val user = findByIdOrThrowUserException(targetUserId)
+        groupMembershipRepository.deleteByUserId(targetUserId)
         userRepository.delete(user)
         log.info("사용자 정보가 삭제되었습니다. userId: {}", targetUserId)
+
+        CookieUtil.deleteAccessTokenCookie(response)
+        CookieUtil.deleteRefreshTokenCookie(response)
+        SecurityContextHolder.clearContext()
     }
 
     private fun findByIdOrThrowUserException(userId: Long): User {

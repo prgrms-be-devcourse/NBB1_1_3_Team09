@@ -72,6 +72,9 @@ dependencies {
 	implementation("io.github.christian-draeger:k6-kotlin:0.1.0")
 
 	implementation ("org.apache.httpcomponents.client5:httpclient5:5.2")
+
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation("io.micrometer:micrometer-registry-prometheus")
 }
 
 kotlin {
@@ -102,10 +105,15 @@ tasks.getByName<Jar>("bootJar") {
 	archiveFileName.set("app.jar")
 }
 
+
+tasks.getByName<Jar>("jar") {
+	enabled = false
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
 springBoot {
-	mainClass.set("com.grepp.nbe1_3_team09.Nbe13Team9Application")
+	mainClass.set("com.grepp.nbe1_3_team9.Nbe13Team9ApplicationKt")
 }

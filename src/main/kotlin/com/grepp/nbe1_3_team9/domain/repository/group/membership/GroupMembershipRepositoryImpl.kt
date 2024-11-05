@@ -56,4 +56,11 @@ class GroupMembershipRepositoryImpl(em: EntityManager) : GroupMembershipReposito
             .execute()
     }
 
+    override fun deleteByUserId(userId: Long): Long {
+        return queryFactory
+            .delete(groupMembership)
+            .where(groupMembership.user.userId.eq(userId))
+            .execute()
+    }
+
 }
