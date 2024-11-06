@@ -63,8 +63,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            rm -rf /home/ubuntu/app/config/application.yaml
             mkdir -p /home/ubuntu/app/config
-      
             echo "${{ secrets.APPLICATION_YAML }}" > /home/ubuntu/app/config/application.yaml
     
             docker pull geonoo/my-spring-boot-app:latest
