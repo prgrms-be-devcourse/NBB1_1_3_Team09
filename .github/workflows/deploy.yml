@@ -68,4 +68,6 @@ jobs:
             docker pull geonoo/my-spring-boot-app:latest
             docker stop my-spring-boot-app || true
             docker rm my-spring-boot-app || true
-            docker run -d --name my-spring-boot-app -p 8080:8080 geonoo/my-spring-boot-app:latest
+            docker run -d -p 8080:8080 \
+              -v /home/ubuntu/app/config/application.yaml:/app/config/application.yaml \
+              --name my-spring-boot-app geonoo/my-spring-boot-app:latest
