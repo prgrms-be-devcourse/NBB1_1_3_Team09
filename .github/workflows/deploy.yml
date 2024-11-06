@@ -65,7 +65,7 @@ jobs:
           script: |
             sudo rm -rf /home/ubuntu/app/config/application.yaml
             sudo mkdir -p /home/ubuntu/app/config
-            echo "${{ secrets.APPLICATION_YAML }}" | sudo tee /home/ubuntu/app/config/application.yaml > /dev/null
+            echo "${{ secrets.APPLICATION }}" | sudo tee /home/ubuntu/app/config/application.yaml > /dev/null
     
             docker pull geonoo/my-spring-boot-app:latest
             docker stop my-spring-boot-app || true
